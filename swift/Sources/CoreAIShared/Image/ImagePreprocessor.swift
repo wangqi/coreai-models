@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -11,6 +15,9 @@ import ImageIO
 
 // MARK: - Image Strategy
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ImageStrategy: String, Codable, Sendable {
     case stretch
     case centerCrop = "center_crop"
@@ -34,6 +41,9 @@ public enum ImageStrategy: String, Codable, Sendable {
 /// let (data, width, height) = try preprocessor.preprocess(imageURL: imageURL)
 /// // data: Float32 RGBA, width x height
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ImagePreprocessor: Sendable {
     public let targetSize: CGSize
     public let mean: (CGFloat, CGFloat, CGFloat)
@@ -275,6 +285,9 @@ public struct ImagePreprocessor: Sendable {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ImagePreprocessorError: Error, LocalizedError {
     case loadFailed(URL)
     case renderFailed
@@ -288,3 +301,5 @@ public enum ImagePreprocessorError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

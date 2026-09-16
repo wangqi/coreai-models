@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import ImageIO
 import UniformTypeIdentifiers
 
 /// Writes video frames to various output formats (MP4, GIF, APNG, WebP).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VideoWriter {
     public enum OutputFormat: String, Sendable, CaseIterable {
         case mp4
@@ -174,6 +181,9 @@ public struct VideoWriter {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum VideoWriterError: Error, LocalizedError {
     case cannotCreateDestination
     case finalizationFailed
@@ -199,3 +209,5 @@ public enum VideoWriterError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

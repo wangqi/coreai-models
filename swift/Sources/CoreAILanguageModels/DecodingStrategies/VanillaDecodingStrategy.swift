@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -12,6 +16,9 @@ import os.signpost
 ///
 /// Handles text decoding, stop sequence detection, and Instruments profiling.
 /// Uses `InferenceEngine.generate()` for the underlying token stream.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VanillaDecodingStrategy: DecodingStrategy {
     public init() {}
 
@@ -82,6 +89,9 @@ public struct VanillaDecodingStrategy: DecodingStrategy {
 
 // MARK: - VanillaDecodedSequence
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension VanillaDecodingStrategy {
     /// Async sequence of `GenerationResult` produced by `decode()`.
     public struct VanillaDecodedSequence: AsyncSequence {
@@ -119,6 +129,9 @@ extension VanillaDecodingStrategy {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension VanillaDecodingStrategy.VanillaDecodedSequence {
     public final class Iterator: AsyncIteratorProtocol {
         public typealias Element = GenerationResult
@@ -288,3 +301,5 @@ extension VanillaDecodingStrategy.VanillaDecodedSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

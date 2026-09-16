@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import CoreAI
 import CoreAIShared
 
 /// Classification of a model state's lifecycle behavior.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum StateKind: String, Codable, Sendable {
     /// KV cache — grows dynamically with context, supports truncation (causal mask).
     case kvCache = "kv_cache"
@@ -17,6 +24,9 @@ public enum StateKind: String, Codable, Sendable {
 }
 
 /// Result of state handler creation.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct SyncStateHandlerSet {
     /// Growing states (KV caches with dynamic sequence dimension).
     var kvCache: any SyncStateHandler
@@ -34,6 +44,9 @@ struct SyncStateHandlerSet {
 /// Classification priority:
 /// 1. Explicit metadata (`"states"` field in metadata.json) — preferred
 /// 2. Shape-based heuristic — dynamic dim → kvCache, static + "cache" in name → slidingCache, else → fixed
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 enum StateHandlerFactory {
     /// Classify states using metadata or heuristic fallback.
     static func classifyStates(
@@ -173,3 +186,5 @@ enum StateHandlerFactory {
         )
     }
 }
+
+#endif  // canImport(CoreAI)

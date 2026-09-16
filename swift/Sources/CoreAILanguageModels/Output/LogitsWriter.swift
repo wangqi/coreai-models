@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,11 +14,20 @@ import Tokenizers
 // MARK: - Logits Configuration
 
 /// Maximum allowed top-K value (prevents excessive memory/output)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let kMaxTopK = 20
 /// Default top-K for console display
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let kDefaultConsoleTopK = 5
 
 /// Specifies how many logits to save per generation step
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum LogitsLength: Sendable {
     case full
     case count(Int)
@@ -76,6 +89,9 @@ public enum LogitsLength: Sendable {
 // MARK: - Logits Data Structures
 
 /// Represents logits information for a single generated token
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TokenLogits: Sendable {
     public let tokenId: Int32
     public let tokenText: String
@@ -89,6 +105,9 @@ public struct TokenLogits: Sendable {
 }
 
 /// Represents a single entry in top-K logits
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TopLogitEntry: Codable, Sendable {
     public let tokenId: Int32
     public let tokenText: String
@@ -102,11 +121,17 @@ public struct TopLogitEntry: Codable, Sendable {
 }
 
 /// Top-level JSON structure for top-K logits output
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct LogitsOutput: Codable {
     let tokens: [TokenLogitsJSON]
 }
 
 /// JSON representation of token with top-K logits
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct TokenLogitsJSON: Codable {
     let tokenId: Int32
     let tokenText: String
@@ -120,11 +145,17 @@ struct TokenLogitsJSON: Codable {
 }
 
 /// Top-level JSON structure for full logits output
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct FullLogitsOutput: Codable {
     let tokens: [FullTokenLogitsJSON]
 }
 
 /// JSON representation of token with full logits (base64 encoded)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct FullTokenLogitsJSON: Codable {
     let tokenId: Int32
     let tokenText: String
@@ -140,6 +171,9 @@ struct FullTokenLogitsJSON: Codable {
 // MARK: - Logits Writer
 
 /// Utility for saving logits in various formats
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct LogitsWriter {
     /// Escape special characters for display
     private static func escapeForDisplay(_ text: String) -> String {
@@ -580,6 +614,9 @@ public struct LogitsWriter {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum LogitsWriterError: Error, LocalizedError {
     case emptyLogits
     case inconsistentVocabSize(String)
@@ -596,3 +633,5 @@ public enum LogitsWriterError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

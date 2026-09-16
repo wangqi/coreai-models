@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -16,6 +20,9 @@ import Foundation
 /// Counts encoder frames, matching `StreamingConfig`. The defaults are wall-clock judgements
 /// calibrated at 80 ms per frame, every Parakeet bundle's frame duration; scale them if a bundle
 /// ever ships a different one.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct EndpointingConfig: Sendable, Equatable {
     /// Frames of decoder silence, duration-weighted, before a segment is finalized. 10 frames
     /// is 0.8 s at 80 ms per frame.
@@ -74,6 +81,9 @@ public struct EndpointingConfig: Sendable, Equatable {
 ///
 /// Everything is in encoder frames, the only unit in which the chunk boundary is exact. One
 /// frame is `hopLength * subsamplingFactor` samples (1280 = 80 ms for Parakeet).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct StreamingConfig: Sendable, Equatable {
     /// Frames consumed per hop. Sets the emission cadence. Must be exact — the sliding
     /// arithmetic depends on it.
@@ -317,6 +327,9 @@ public struct StreamingConfig: Sendable, Equatable {
 /// `subsamplingFactor` must be a power of two — all a stack of stride-2 convs can express. The
 /// loop halves, so a factor of 6 would otherwise apply silently as 4. Both metadata decoders
 /// reject a bad factor first, so this traps only a programming error.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func encoderFrameCount(melFrames: Int, subsamplingFactor: Int) -> Int {
     guard melFrames > 0, subsamplingFactor > 1 else { return max(0, melFrames) }
     precondition(
@@ -332,6 +345,11 @@ public func encoderFrameCount(melFrames: Int, subsamplingFactor: Int) -> Int {
 }
 
 /// Whether `factor` is a subsampling factor `encoderFrameCount` can express.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 package func isValidSubsamplingFactor(_ factor: Int) -> Bool {
     factor > 0 && factor & (factor - 1) == 0
 }
+
+#endif  // canImport(CoreAI)

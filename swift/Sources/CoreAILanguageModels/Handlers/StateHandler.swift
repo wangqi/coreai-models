@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -14,6 +18,9 @@ import CoreAI
 /// Handlers are classes (AnyObject) so they own their NDArrays at refcount 1 —
 /// `bind(into:)` calls `mutableRawView()` without triggering COW. The loop uses
 /// `_overrideLifetime` to express disjoint element access to the compiler.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol SyncStateHandler: AnyObject {
     /// Names of the states managed by this handler.
     var stateNames: [String] { get }
@@ -53,6 +60,9 @@ public protocol SyncStateHandler: AnyObject {
 
 /// Detach lifetime dependencies from MutableViews so it can cross scope
 /// boundaries (closures, await). Caller must ensure inserted arrays remain valid.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @inline(__always)
 @_unsafeNonescapableResult
 @_lifetime(immortal)
@@ -61,3 +71,5 @@ func _unsafeEscapeMutableViews(
 ) -> InferenceFunction.MutableViews {
     views
 }
+
+#endif  // canImport(CoreAI)

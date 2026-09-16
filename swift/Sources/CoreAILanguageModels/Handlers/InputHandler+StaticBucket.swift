@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -18,6 +22,9 @@ import CoreAIShared
 /// Inputs NOT managed (handled by the engine directly):
 /// - `embedding_table` (constant, passed through)
 /// - `transformer_input` (produced by gather function)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct StaticBucketInputFiller: StaticInputHandler {
     public let inputNames: [String]
 
@@ -123,3 +130,5 @@ public struct StaticBucketInputFiller: StaticInputHandler {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

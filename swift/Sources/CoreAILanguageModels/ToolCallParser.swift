@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Tokenizers
 
 // MARK: - Tokenizer vocabulary probe
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension Tokenizer {
     /// Whether `token` is a genuine entry in the vocabulary, not an unk-token fallback.
     func vocabContains(_ token: String) -> Bool {
@@ -17,6 +24,9 @@ extension Tokenizer {
 }
 
 /// Streaming parser that detects tool call blocks in the model's token stream.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ToolCallParser: Sendable {
     public enum Event {
         case text(String)
@@ -206,6 +216,9 @@ public struct ToolCallParser: Sendable {
 
 // MARK: - Tool Call Marker Detection
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ToolCallDetection: Sendable {
     public let openMarker: String
     public let closeMarker: String
@@ -213,6 +226,9 @@ public struct ToolCallDetection: Sendable {
 }
 
 /// Probes a tokenizer's vocabulary for known tool-call special tokens.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func detectToolCallFormat(using tokenizer: any Tokenizer) -> ToolCallDetection? {
     // ATEM special tokens (if a future tokenizer adds them)
     if tokenizer.vocabContains("<atem:function_calls>"),
@@ -258,6 +274,9 @@ public func detectToolCallFormat(using tokenizer: any Tokenizer) -> ToolCallDete
 // MARK: - Thinking Format Detection
 
 /// Probes a tokenizer's vocabulary for thinking/reasoning markers.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func detectThinkingFormat(using tokenizer: any Tokenizer) -> ThinkTagParser.Format {
     if tokenizer.vocabContains("<|eom|>"),
         tokenizer.vocabContains("<|eot|>"),
@@ -284,3 +303,5 @@ public func detectThinkingFormat(using tokenizer: any Tokenizer) -> ThinkTagPars
     }
     return .tagPair(open: "<think>", close: "</think>")
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -9,6 +13,9 @@ import Tokenizers
 // MARK: - Prompt Input Types
 
 /// Represents the source of prompt input
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum PromptInput {
     case text(String)
     case rawTokens(RawTokensInput)
@@ -44,6 +51,9 @@ public enum PromptInput {
 // MARK: - Prompt Input Errors
 
 /// Errors for prompt input loading
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum PromptInputError: Error, LocalizedError {
     case fileNotFound(String)
     case mutuallyExclusive
@@ -61,6 +71,9 @@ public enum PromptInputError: Error, LocalizedError {
 // MARK: - Raw Tokens Input
 
 /// JSON structure for pre-tokenized input: {"tokens": [1, 2, 3, ...]}
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct RawTokensInput: Codable, Sendable {
     public let tokens: [Int32]
 
@@ -110,6 +123,9 @@ public struct RawTokensInput: Codable, Sendable {
 // MARK: - Prompt Input Resolver
 
 /// Resolves prompt input from CLI options
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct PromptInputResolver {
     /// Resolve the effective prompt from CLI options (mutually exclusive)
     /// - Parameters:
@@ -146,3 +162,5 @@ public struct PromptInputResolver {
         return .text(prompt ?? `default`)
     }
 }
+
+#endif  // canImport(CoreAI)

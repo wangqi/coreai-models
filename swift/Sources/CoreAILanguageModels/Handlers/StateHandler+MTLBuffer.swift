@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -9,6 +13,9 @@ import Metal
 
 /// Fixed-size MTLBuffer state for non-truncatable persistent states (pipelined engine).
 /// Allocated once at init, zero-initialized, never grows.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class FixedMTLBufferState {
     public let stateNames: [String]
     public var stateCount: Int { bindings.count }
@@ -60,3 +67,5 @@ public final class FixedMTLBufferState {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

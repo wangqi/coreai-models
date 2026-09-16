@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,6 +21,9 @@ import Metal
 /// submission order on a single MTLCommandQueue (observed behavior, validated by
 /// `MPSGraphCompletionOrderingTests`). The gate further ensures that
 /// `buffer(forStep:)` does not overlap with `recordToken` for the same slot.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class RepetitionPenaltyGPUState: @unchecked Sendable {
     let penaltyBuffers: [MTLBuffer]
     let vocabSize: Int
@@ -123,3 +130,5 @@ final class RepetitionPenaltyGPUState: @unchecked Sendable {
         dirtyTokens = Array(repeating: (added: [], evicted: []), count: pipelineDepth)
     }
 }
+
+#endif  // canImport(CoreAI)

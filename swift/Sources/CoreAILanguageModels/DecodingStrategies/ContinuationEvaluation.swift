@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -15,6 +19,9 @@ import Tokenizers
 /// The continuation may merge with the end of context (e.g., " " + "B" → " B").
 /// We find where tokens diverge and consider all tokens from that point as part
 /// of the continuation for evaluation purposes.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ContinuationEncoding: Sendable {
     /// Tokens for the context part (tokens that are identical in both encodings)
     public let contextTokens: [Int32]
@@ -56,6 +63,9 @@ public struct ContinuationEncoding: Sendable {
 // MARK: - Continuation Evaluation Result
 
 /// Result of continuation evaluation containing logits for each continuation position
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ContinuationEvaluationResult: Sendable {
     /// Tokens for the context part
     public let contextTokens: [Int32]
@@ -90,6 +100,9 @@ public struct ContinuationEvaluationResult: Sendable {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ContinuationEvaluationError: Error, LocalizedError {
     case requiresDisabledChatTemplate
     case requiresLogitsOutput
@@ -115,3 +128,5 @@ public enum ContinuationEvaluationError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

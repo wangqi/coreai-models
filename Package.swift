@@ -5,11 +5,28 @@
 // Use of this source code is governed by a BSD-3-clause license that can
 // be found in the LICENSE file or at https://opensource.org/licenses/BSD-3-Clause
 
+// Trimmed for the AIAssistant app.  Three deliberate divergences from upstream, all needed to make
+// the package linkable from an app that deploys to iOS 18.0 / macOS 26.0:
+//
+//   1. `platforms:` is lowered.  Upstream declares .iOS("27.0")/.macOS("27.0") and carries no
+//      @available annotations at all, so SPM refuses to link it.  Instead every declaration in
+//      CoreAIShared, CoreAILanguageModels and CoreAISpeech carries
+//      @available(iOS 27.0, macOS 27.0, *), applied mechanically by
+//      helper/scripts/coreai/patch_coreai_package.py.  Re-run that script after every upstream merge.
+//   2. swift-transformers resolves to thirdparty/swift-transformers, the copy the app already
+//      vendors, so the app links one Tokenizers module rather than two.
+//   3. The CLI executables, their test targets and the diffusion / segmentation / object-detection
+//      libraries are removed.  llm-server pulled in hummingbird and every tool pulled in
+//      swift-argument-parser, none of which belong in an app binary.  The engine and streaming code
+//      the app ports from llm-server's ChatHandler lives in AIChatModelCoreAI.swift instead.
+//
+// wangqi modified 2026-09-15
+
 import PackageDescription
 
 let package = Package(
     name: "coreai-models",
-    platforms: [.macOS("27.0"), .iOS("27.0")],
+    platforms: [.macOS("26.0"), .iOS("18.0")],
     products: [
         .library(
             name: "CoreAILM",
@@ -18,39 +35,13 @@ let package = Package(
             ]
         ),
         .library(
-            name: "CoreAIDiffusion",
-            targets: [
-                "CoreAIDiffusionPipeline"
-            ]
-        ),
-        .library(
-            name: "CoreAIVideoDiffusion",
-            targets: [
-                "CoreAIVideoDiffusionPipeline"
-            ]
-        ),
-        .library(
-            name: "CoreAISegmentation",
-            targets: [
-                "CoreAIImageSegmenter"
-            ]
-        ),
-        .library(
             name: "CoreAISpeech",
             targets: ["CoreAISpeech"]
         ),
-        .library(
-            name: "CoreAIObjectDetection",
-            targets: [
-                "CoreAIObjectDetector"
-            ]
-        ),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
-        .package(url: "https://github.com/huggingface/swift-transformers", from: "1.1.0"),
+        .package(path: "../swift-transformers"),
         .package(url: "https://github.com/mlc-ai/xgrammar", exact: "0.2.2"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.22.0"),
     ],
     targets: [
         .target(
@@ -68,22 +59,6 @@ let package = Package(
             ],
             linkerSettings: [
                 .linkedLibrary("c++")
-            ]
-        ),
-        .target(
-            name: "CoreAIImageSegmenter",
-            dependencies: ["CoreAIShared"],
-            path: "swift/Sources/CoreAIImageSegmenter",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .target(
-            name: "CoreAIObjectDetector",
-            dependencies: ["CoreAIShared"],
-            path: "swift/Sources/CoreAIObjectDetector",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
             ]
         ),
 
@@ -110,42 +85,6 @@ let package = Package(
             ]
         ),
 
-        // Diffusion Pipeline
-        .target(
-            name: "CoreAIDiffusionPipeline",
-            dependencies: [
-                "CoreAIShared",
-                .product(name: "Transformers", package: "swift-transformers"),
-            ],
-            path: "swift/Sources/CoreAIDiffusionPipeline",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-
-        .target(
-            name: "CoreAIVideoDiffusionPipeline",
-            dependencies: [
-                "CoreAIDiffusionPipeline",
-                "CoreAIShared",
-                .product(name: "Transformers", package: "swift-transformers"),
-            ],
-            path: "swift/Sources/CoreAIVideoDiffusionPipeline",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-
-        // Shared types for LLM CLI tools (used by both llm-runner and llm-server)
-        .target(
-            name: "CoreAILMCommon",
-            dependencies: [],
-            path: "swift/Sources/CoreAILMCommon",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-
         // CXGrammar C bridge
         .target(
             name: "CXGrammar",
@@ -155,192 +94,9 @@ let package = Package(
             path: "swift/Sources/lib/CXGrammar",
             publicHeadersPath: "include"
         ),
-
-        // MARK: Executable targets
-
-        .executableTarget(
-            name: "llm-runner",
-            dependencies: [
-                "CoreAILanguageModels",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/llm-runner",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "llm-server",
-            dependencies: [
-                "CoreAILanguageModels",
-                "CoreAILMCommon",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Hummingbird", package: "hummingbird"),
-            ],
-            path: "swift/Sources/Tools/llm-server",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "image-segmenter",
-            dependencies: [
-                "CoreAIImageSegmenter",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/image-segmenter",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "object-detector",
-            dependencies: [
-                "CoreAIObjectDetector",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/object-detector",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "diffusion-runner",
-            dependencies: [
-                "CoreAIDiffusionPipeline",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/diffusion-runner",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "videodiffusion-runner",
-            dependencies: [
-                "CoreAIVideoDiffusionPipeline",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/videodiffusion-runner",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .executableTarget(
-            name: "speech-recognizer",
-            dependencies: [
-                "CoreAISpeech",
-                "CoreAIShared",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/speech-recognizer",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-
-        // Public LLM Benchmark CLI (based on mlx-lm benchmark)
-        .executableTarget(
-            name: "llm-benchmark",
-            dependencies: [
-                "CoreAILanguageModels",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "swift/Sources/Tools/benchmark",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-
-        // MARK: Test targets
-
-        .target(
-            name: "TestUtilities",
-            dependencies: [
-                .product(name: "Transformers", package: "swift-transformers")
-            ],
-            path: "swift/Tests/TestUtilities",
-            swiftSettings: [
-                .enableUpcomingFeature("MemberImportVisibility")
-            ]
-        ),
-        .testTarget(
-            name: "LanguageModelsTests",
-            dependencies: [
-                "CoreAILanguageModels",
-                "CoreAIShared",
-                "TestUtilities",
-                .product(name: "Transformers", package: "swift-transformers"),
-            ],
-            path: "swift/Tests/LanguageModelsTests",
-            resources: [
-                .copy("Resources/MinimalTokenizer")
-            ],
-            swiftSettings: [
-                .enableExperimentalFeature("Lifetimes")
-            ],
-            linkerSettings: [
-                .linkedLibrary("c++")
-            ]
-        ),
-        .testTarget(
-            name: "ImageSegmenterTests",
-            dependencies: [
-                "CoreAIImageSegmenter",
-                "TestUtilities",
-            ],
-            path: "swift/Tests/ImageSegmenterTests"
-        ),
-        .testTarget(
-            name: "DiffusionPipelineTests",
-            dependencies: [
-                "CoreAIDiffusionPipeline",
-                "CoreAIVideoDiffusionPipeline",
-                "TestUtilities",
-            ],
-            path: "swift/Tests/DiffusionPipelineTests"
-        ),
-        .testTarget(
-            name: "ObjectDetectorTests",
-            dependencies: ["CoreAIObjectDetector"],
-            path: "swift/Tests/ObjectDetectorTests"
-        ),
-        .testTarget(
-            name: "CoreAISharedTests",
-            dependencies: ["CoreAIShared", "TestUtilities"],
-            path: "swift/Tests/CoreAISharedTests"
-        ),
-        .testTarget(
-            name: "CoreAILMCommonTests",
-            dependencies: ["CoreAILMCommon"],
-            path: "swift/Tests/CoreAILMCommonTests"
-        ),
-        .testTarget(
-            name: "GuidedGenerationTests",
-            dependencies: [
-                "CoreAILanguageModels",
-                .product(name: "Transformers", package: "swift-transformers"),
-            ],
-            path: "swift/Tests/GuidedGenerationTests",
-            linkerSettings: [
-                .linkedLibrary("c++")
-            ]
-        ),
-        .testTarget(
-            name: "SpeechTests",
-            dependencies: [
-                "CoreAISpeech",
-                "TestUtilities",
-            ],
-            path: "swift/Tests/SpeechTests"
-        ),
     ],
-    swiftLanguageModes: [.v6],
+    // xgrammar's headers are C++17 (std::variant, std::optional).  Upstream never declared a
+    // standard because its own CLI builds picked one up from CMake; inside Xcode the SPM C++ target
+    // compiles at the clang default and fails.  wangqi modified 2026-09-15
     cxxLanguageStandard: .cxx17
 )

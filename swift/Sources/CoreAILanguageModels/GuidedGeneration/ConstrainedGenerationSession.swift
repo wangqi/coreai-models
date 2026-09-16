@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -16,6 +20,9 @@ import Tokenizers
 ///
 /// Each session is tied to a specific JSON schema and vocabulary. It tracks
 /// the generation state and produces token masks that enforce schema compliance.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ConstrainedGenerationSession: ~Copyable {
     static let maxRollbackTokens = 64
 
@@ -244,6 +251,9 @@ public struct ConstrainedGenerationSession: ~Copyable {
 // MARK: - Float16 Masking
 
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedGenerationSession {
     /// Apply the grammar mask to Float16 logits in-place, setting disallowed tokens to
     /// `-Float16.greatestFiniteMagnitude`.
@@ -262,6 +272,9 @@ extension ConstrainedGenerationSession {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ConstrainedGenerationError: Error, LocalizedError {
     case invalidSchema(String)
     case generationFailed(String)
@@ -278,6 +291,9 @@ public enum ConstrainedGenerationError: Error, LocalizedError {
 
 // MARK: - Convenience: Schema from File
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedGenerationSession {
     /// Create a session by loading a JSON schema from a file.
     ///
@@ -299,6 +315,9 @@ extension ConstrainedGenerationSession {
 }
 
 /// Applies bitmask to logits.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private func _applyBitmask<T: BinaryFloatingPoint>(
     _ bitmask: [Int32],
     to logits: inout [T],
@@ -323,3 +342,5 @@ private func _applyBitmask<T: BinaryFloatingPoint>(
         }
     }
 }
+
+#endif  // canImport(CoreAI)

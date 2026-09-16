@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -11,6 +15,9 @@ import Foundation
 /// Decodes every frame of a video in order.
 ///
 /// Useful for video segmentation models that perform tracking across the whole sequence.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct SequentialVideoReader: Sendable {
     /// What the container says about the track, read before any frame is decoded.
     public struct Metadata: Sendable {
@@ -172,3 +179,5 @@ public struct SequentialVideoReader: Sendable {
         )
     }
 }
+
+#endif  // canImport(CoreAI)

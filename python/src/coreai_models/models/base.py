@@ -900,6 +900,11 @@ class BaseForCausalLMForiOS(BaseForCausalLM):
     #: Query lengths the graphs are specialized for.
     IOS_STATIC_QUERY_LENS = (8, 16, 64)
 
+    # Measured 2026-09-15: with this floor at 256, any max_context_length above 4096 compiles
+    # to ZERO ANE regions -- ctx 8192, 16384 and 32768 each emit a GPU-only .aimodelc while
+    # `coreai-build compile` still exits 0, so the failure is silent. Keep iOS exports at
+    # ctx 4096 (helper/scripts/coreai/README.md Rule 2a); the value below is unchanged.
+    # wangqi modified 2026-09-15
     #: Smallest cache length in the static ladder; it doubles up to the context.
     IOS_STATIC_MIN_CACHE_LEN = 256
 

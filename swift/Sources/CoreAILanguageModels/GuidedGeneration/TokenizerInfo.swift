@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -6,6 +10,9 @@
 import CXGrammar
 import Foundation
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class TokenizerInfo {
     private let handle: OpaquePointer
     public let vocabulary: [String]
@@ -67,6 +74,9 @@ public final class TokenizerInfo {
 // MARK: - Vocabulary Caching
 
 /// Cache for tokenizer info to avoid repeated vocabulary extraction
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public actor TokenizerInfoCache {
     private var cache: [String: TokenizerInfo] = [:]
 
@@ -102,6 +112,9 @@ public actor TokenizerInfoCache {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum VocabularyType: Sendable {
     case raw
     case byteFallback
@@ -115,3 +128,5 @@ public enum VocabularyType: Sendable {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,6 +21,9 @@ import CoreAI
 ///   exists, otherwise through `main`.
 /// - `CoreAISequentialVLMEngine` passes `heldBack = 0` and a closure that always runs the decoder,
 ///   so the loop collapses to a plain chunked pass.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func runChunkedPrefill(
     tokens: ArraySlice<Int32>,
     chunkSize: Int,
@@ -50,3 +57,5 @@ func runChunkedPrefill(
 
     return lastTokenLogits(from: lastLogits, vocabSize: vocabSize)
 }
+
+#endif  // canImport(CoreAI)

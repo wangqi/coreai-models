@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,6 +21,9 @@ import Foundation
 ///
 /// Extends the base `ModelConfig` with vision-specific parameters: image size,
 /// patch geometry, placeholder token ID, and per-image embedding token count.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VLMModelConfig: InferenceConfiguration, Codable, Sendable {
     public let base: ModelConfig
     public let visionConfig: VisionConfig
@@ -69,6 +76,9 @@ public struct VLMModelConfig: InferenceConfiguration, Codable, Sendable {
 ///
 /// KV cache is managed identically to `CoreAISequentialEngine`: starts small and grows
 /// dynamically with 2x expansion.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class CoreAISequentialVLMEngine: MultimodalInferenceEngine, @unchecked Sendable {
     public typealias ConfigType = VLMModelConfig
     public typealias OutputSequence = GenerationSequence
@@ -918,6 +928,9 @@ public final class CoreAISequentialVLMEngine: MultimodalInferenceEngine, @unchec
 
 // MARK: - Generation Sequence
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension CoreAISequentialVLMEngine {
     /// Async sequence of `InferenceOutput` produced by `generate()`.
     public struct GenerationSequence: InferenceOutputSequence {
@@ -955,6 +968,9 @@ extension CoreAISequentialVLMEngine {
 
 // MARK: - Generation Iterator
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension CoreAISequentialVLMEngine.GenerationSequence {
     public final class Iterator: AsyncIteratorProtocol {
         public typealias Element = InferenceOutput
@@ -1109,3 +1125,5 @@ extension CoreAISequentialVLMEngine.GenerationSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

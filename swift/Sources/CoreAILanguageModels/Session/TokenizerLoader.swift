@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Foundation
 import Tokenizers
 
 /// Options for tokenizer resolution.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TokenizerOptions: Sendable {
     /// Directory to search for locally cached tokenizers.
     public var tokenizersDirectory: String?
@@ -30,6 +37,9 @@ public struct TokenizerOptions: Sendable {
 /// 1. HuggingFace local cache (`~/Documents/huggingface/models/...`)
 /// 2. Custom tokenizers directory (`tokenizersDirectory` or `~/.coreai-models/tokenizers`)
 /// 3. HuggingFace Hub download (network)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TokenizerLoader {
     /// Load a tokenizer by HuggingFace model ID or local path.
     ///
@@ -84,3 +94,5 @@ public struct TokenizerLoader {
         return tokenizer
     }
 }
+
+#endif  // canImport(CoreAI)

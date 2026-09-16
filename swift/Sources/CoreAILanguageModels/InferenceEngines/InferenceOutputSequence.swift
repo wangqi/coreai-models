@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -6,6 +10,9 @@
 import Synchronization
 
 /// Why token generation terminated.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum StopReason: Sendable, Equatable {
     /// The maximum token limit was reached.
     case maxTokens
@@ -33,6 +40,9 @@ public enum StopReason: Sendable, Equatable {
 ///
 /// Read `stopReason` after the `for try await` loop exits; it is guaranteed
 /// non-nil once iteration has run to completion.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol InferenceOutputSequence: AsyncSequence<InferenceOutput, any Error> {
     /// Why generation stopped. Nil while the stream is still active.
     var stopReason: StopReason? { get }
@@ -48,6 +58,9 @@ public protocol InferenceOutputSequence: AsyncSequence<InferenceOutput, any Erro
 /// iterator (or a producer Task) and read by the caller after iteration. A
 /// reference-typed box lets the sequence value, its iterator, and the caller
 /// observe the same slot.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class StopReasonStore: Sendable {
     private let value = Mutex<StopReason?>(nil)
 
@@ -67,3 +80,5 @@ final class StopReasonStore: Sendable {
         value.withLock { if $0 == nil { $0 = reason } }
     }
 }
+
+#endif  // canImport(CoreAI)

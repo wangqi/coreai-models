@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -12,6 +16,9 @@ import Foundation
 ///
 /// Uses `NDArrayDescriptor.resolvingDynamicDimensions().preferredStrides` to get
 /// framework-blessed strides that respect hardware alignment constraints.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func resolvedStrides(descriptor: NDArrayDescriptor, shape: [Int]) throws -> [Int] {
     let resolved = descriptor.resolvingDynamicDimensions(shape)
     return resolved.preferredStrides
@@ -22,6 +29,9 @@ public func resolvedStrides(descriptor: NDArrayDescriptor, shape: [Int]) throws 
 /// Product of the elements of a Span<Int> — used to compute the flat
 /// capacity from an NDArray shape. `Span` doesn't conform to `Sequence`
 /// (non-escapable by design), so `.reduce` isn't available.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension Span where Element == Int {
     var product: Int {
         var result = 1
@@ -33,6 +43,9 @@ extension Span where Element == Int {
 }
 
 /// Check whether a shape+strides pair represents a contiguous row-major layout.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func isContiguousRowMajor(shape: Span<Int>, strides: Span<Int>) -> Bool {
     let rank = shape.count
     var expectedStride = 1
@@ -46,6 +59,9 @@ public func isContiguousRowMajor(shape: Span<Int>, strides: Span<Int>) -> Bool {
 // MARK: - NDArray Fill / Read Helpers
 
 /// Fill an NDArray from a collection of elements.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func fillNDArray<T: BitwiseCopyable>(
     _ array: inout NDArray, as type: T.Type, with elements: some Collection<T>
 ) {
@@ -57,6 +73,9 @@ public func fillNDArray<T: BitwiseCopyable>(
 ///
 /// Uses stride-aware indexing to handle GPU-aligned padding in 4D+ tensors.
 /// - Precondition: `count` must not exceed the logical element count of the array.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func fillNDArray<T: BitwiseCopyable>(
     _ array: inout NDArray, as type: T.Type, count: Int, using generator: (Int) -> T
 ) {
@@ -65,6 +84,9 @@ public func fillNDArray<T: BitwiseCopyable>(
 
 /// Fill an NDArray's MutableRawView using a generator closure (index → value).
 /// Takes the view as `consuming` — caller gives up ownership after the call.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func fillNDArray<T: BitwiseCopyable>(
     _ rawView: consuming NDArray.MutableRawView, as type: T.Type, count: Int, using generator: (Int) -> T
 ) {
@@ -98,6 +120,9 @@ public func fillNDArray<T: BitwiseCopyable>(
 ///
 /// Uses stride-aware indexing to handle non-contiguous layouts.
 /// - Precondition: `count` must not exceed the logical element count.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func readNDArray<T: BitwiseCopyable>(
     _ array: NDArray, as type: T.Type, count: Int
 ) -> [T] {
@@ -138,6 +163,9 @@ public func readNDArray<T: BitwiseCopyable>(
 /// or corrupts memory. This helper is the single home for that runtime
 /// scalar-type dispatch (callers hold `[Float]` and don't know the descriptor's
 /// dtype statically); the actual writes delegate to `fillNDArray`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func fillFloatNDArray(_ array: inout NDArray, with elements: [Float]) {
     fillFloatNDArray(&array, with: elements[...])
 }
@@ -146,6 +174,9 @@ public func fillFloatNDArray(_ array: inout NDArray, with elements: [Float]) {
 /// (`buffer[a..<b]`) straight through without materializing an intermediate
 /// `Array`. This is the canonical implementation; the `[Float]` overload forwards
 /// here. Indices are taken relative to the slice's own `startIndex`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func fillFloatNDArray(_ array: inout NDArray, with elements: ArraySlice<Float>) {
     let base = elements.startIndex
     switch array.scalarType {
@@ -165,6 +196,9 @@ public func fillFloatNDArray(_ array: inout NDArray, with elements: ArraySlice<F
 /// Flatten an NDArray output into `[Float]`, branching on its own scalar type.
 /// Output dtype can differ from the model's input dtype, so always inspect the array
 /// rather than threading an `isFloat16` flag from input descriptors.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func flattenAsFloat(_ array: NDArray) -> [Float] {
     switch array.scalarType {
     #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
@@ -184,6 +218,9 @@ public func flattenAsFloat(_ array: NDArray) -> [Float] {
 ///
 /// Fast path skips per-element stride arithmetic when the array is already
 /// row-major contiguous (the common case for Core AI outputs).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func flattenNDArray<T: BinaryFloatingPoint & BitwiseCopyable>(
     _ array: NDArray, as type: T.Type
 ) -> [Float] {
@@ -217,6 +254,9 @@ public func flattenNDArray<T: BinaryFloatingPoint & BitwiseCopyable>(
 ///
 /// BFloat16 is stored as UInt16 with the same exponent/sign layout as Float32's
 /// upper 16 bits. Conversion: `Float(bitPattern: UInt32(bits) << 16)`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func flattenBFloat16NDArray(_ array: NDArray) -> [Float] {
     let outerShape = array.shape
     let total = outerShape.reduce(1, *)
@@ -257,6 +297,9 @@ public func flattenBFloat16NDArray(_ array: NDArray) -> [Float] {
 /// Lets a chunked decoder convert only the frames it reads. A streaming hop's encoder output
 /// also holds left and right context the loop never indexes — at Parakeet's default geometry,
 /// 12 frames of 151 — so flattening it whole converts an order of magnitude more than is used.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func floatElements(_ array: NDArray, in elementRange: Range<Int>) -> [Float] {
     var result = [Float](repeating: 0, count: elementRange.count)
     forEachFloatElement(array, in: elementRange) { result[$0] = $1 }
@@ -267,6 +310,9 @@ public func floatElements(_ array: NDArray, in elementRange: Range<Int>) -> [Flo
 ///
 /// Scans in place, because the alternative — flatten to `[Float]`, then scan — allocates and
 /// converts a whole vocab row per emitted symbol (32 KB for Parakeet's 8,198 logits).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func argmaxFloat(_ array: NDArray, in elementRange: Range<Int>) -> Int {
     var scan = FloatArgmax()
     forEachFloatElement(array, in: elementRange) { scan.offer($0, $1) }
@@ -278,6 +324,9 @@ public func argmaxFloat(_ array: NDArray, in elementRange: Range<Int>) -> Int {
 ///
 /// Kept as a separate type so that tie-and-empty rule lives in one place rather than being
 /// re-derived at each scan site.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private struct FloatArgmax {
     private(set) var best = 0
     private var bestValue = -Float.infinity
@@ -296,6 +345,9 @@ private struct FloatArgmax {
 ///
 /// Output dtype can differ from the model's input dtype, so this branches on the array's own
 /// scalar type rather than threading a flag from the input descriptors.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @inline(__always)
 private func forEachFloatElement(
     _ array: NDArray, in elementRange: Range<Int>, _ visit: (Int, Float) -> Void
@@ -312,6 +364,9 @@ private func forEachFloatElement(
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @inline(__always)
 private func forEachElement<T: BinaryFloatingPoint & BitwiseCopyable>(
     _ array: NDArray, as type: T.Type, in elementRange: Range<Int>,
@@ -355,3 +410,5 @@ private func forEachElement<T: BinaryFloatingPoint & BitwiseCopyable>(
         }
     }
 }
+
+#endif  // canImport(CoreAI)

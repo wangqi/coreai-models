@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import CoreAI
 /// Name of the optional prefill entrypoint. Exported beside `main` (see
 /// `export/macos.py`) with the same inputs and states, but no LM head and no outputs:
 /// it only fills the KV cache.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 let prefillGraphFunctionName = "prefill"
 
 // MARK: - Selection
@@ -15,6 +22,9 @@ let prefillGraphFunctionName = "prefill"
 /// Widest query the prefill graph is run with: `prefillChunkSize`, clamped to the context
 /// and to at least one token so a degenerate config can't produce an empty or negative
 /// chunk width.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func prefillQueryLength(prefillChunkSize: Int, maxContextLength: Int) -> Int {
     max(1, min(prefillChunkSize, maxContextLength))
 }
@@ -24,6 +34,9 @@ func prefillQueryLength(prefillChunkSize: Int, maxContextLength: Int) -> Int {
 /// With a prefill graph, chunking is cheaper at any size: every chunk skips the LM head, so
 /// there is no threshold to clear. Without one, prefill runs through `main`, where a chunk
 /// costs a full LM head, so it only pays off past `chunkThreshold`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func shouldChunkPrefill(tokenCount: Int, hasPrefillGraph: Bool, chunkThreshold: Int) -> Bool {
     hasPrefillGraph || tokenCount > chunkThreshold
 }
@@ -33,6 +46,9 @@ func shouldChunkPrefill(tokenCount: Int, hasPrefillGraph: Bool, chunkThreshold: 
 /// One with a prefill graph, which has no LM head and so cannot produce the logits that
 /// seed sampling; none without one, where prefill runs on `main` and the trailing chunk
 /// carries the logits itself.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func prefillHeldBackTokens(hasPrefillGraph: Bool) -> Int {
     hasPrefillGraph ? 1 : 0
 }
@@ -42,6 +58,9 @@ func prefillHeldBackTokens(hasPrefillGraph: Bool) -> Int {
 /// With a prefill graph `main` only ever sees the one held-back token, so a prompt-sized
 /// buffer -- hundreds of MB at large vocabularies -- would go unused. Without one `main`
 /// serves prefill too and sees whole chunks, so it starts at the usual guess and grows.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func prefillLogitsInitialCapacity(hasPrefillGraph: Bool, averagePromptSize: Int) -> Int {
     hasPrefillGraph ? 1 : averagePromptSize
 }
@@ -50,6 +69,9 @@ func prefillLogitsInitialCapacity(hasPrefillGraph: Bool, averagePromptSize: Int)
 ///
 /// `heldBack` comes from `prefillHeldBackTokens`. Returns an empty array when there is
 /// nothing to prefill -- a prompt at or below `heldBack` is entirely the caller's to run.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func prefillChunkSizes(tokenCount: Int, chunkSize: Int, heldBack: Int) -> [Int] {
     let width = max(1, chunkSize)
     var remaining = max(0, tokenCount - max(0, heldBack))
@@ -67,6 +89,9 @@ func prefillChunkSizes(tokenCount: Int, chunkSize: Int, heldBack: Int) -> [Int] 
 /// Check a prefill descriptor against `main`, throwing if it can't be bound the same way.
 ///
 /// Split out from `loadPrefillGraph` so the contract can be exercised without an asset.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func validatePrefillShape(
     prefillInputs: [String],
     prefillStates: [String],
@@ -97,6 +122,9 @@ func validatePrefillShape(
 /// It must take the same inputs and states as `main` and declare no outputs, because that
 /// is how callers bind it. A graph that disagrees is a stale asset, so this throws instead
 /// of falling back.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func loadPrefillGraph(
     from model: AIModel,
     matching main: InferenceFunctionDescriptor,
@@ -118,3 +146,5 @@ func loadPrefillGraph(
     }
     return loaded
 }
+
+#endif  // canImport(CoreAI)

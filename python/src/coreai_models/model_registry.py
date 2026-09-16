@@ -398,6 +398,24 @@ LLM_PRESETS: list[ModelPreset] = [
         4096,
         _model_type_override="qwen2",
     ),
+    # MiniCPM5-1B reports model_type "llama", which has no iOS (chunked-static / ANE) class.
+    # It is a plain LlamaForCausalLM of the same shape as SmolLM2, which already reaches the
+    # ANE through the qwen2 export path, so reuse that path here. ctx 4096 because the
+    # chunked-static function ladder tops out at ~30 regions, which makes 4096 the practical
+    # maximum regardless of the KV-element budget (helper/scripts/coreai/README.md Rule 2a);
+    # minicpm5-1b @4096 is the 30-region / 236.5 MB build measured OK in that table.
+    # wangqi modified 2026-09-15
+    ModelPreset(
+        "minicpm5-1b",
+        "openbmb/MiniCPM5-1B",
+        "minicpm5",
+        "llm",
+        "iOS",
+        "4bit_weight_palettized_group32",
+        "float16",
+        4096,
+        _model_type_override="qwen2",
+    ),
     ModelPreset(
         "olmo2-1b-instruct",
         "allenai/OLMo-2-0425-1B-Instruct",

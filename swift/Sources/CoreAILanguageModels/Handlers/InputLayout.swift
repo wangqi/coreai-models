@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -6,6 +10,9 @@
 import CoreAI
 
 /// Shared descriptor analysis, built once at engine init.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InputLayout: Sendable {
     public let inputIdsName: String
     public let positionIdsName: String
@@ -37,6 +44,9 @@ public struct InputLayout: Sendable {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InputLayout {
     public static func analyze(
         model: AIModel,
@@ -149,3 +159,5 @@ extension InputLayout {
             "No \(label) input found. Expected one of \(candidates), got \(names)")
     }
 }
+
+#endif  // canImport(CoreAI)

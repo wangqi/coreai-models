@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -23,6 +27,9 @@ import Tokenizers
 /// "speech_recognizer"` and `config.architecture: "parakeet_tdt"`, an `assets`
 /// map for `encoder` / `decoder_step` / `joint`, and a TDT `config` block), the
 /// three `.aimodel` assets, and a `processor/` subdirectory carrying the tokenizer.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct SpeechRecognitionBundle: Sendable {
     public let kind: Kind
     public let tokenizer: (any Tokenizer)?
@@ -216,6 +223,9 @@ public struct SpeechRecognitionBundle: Sendable {
 /// - Parameter root: the directory containing `.cache/huggingface/hub`. Defaults to the user's
 ///   home directory; overridable so the resolution rules can be tested against a fixture tree
 ///   instead of whatever happens to be in the developer's real cache.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public func huggingFaceCacheSnapshot(
     forModelName name: String,
     root: URL = FileManager.default.homeDirectoryForCurrentUser
@@ -242,6 +252,9 @@ public func huggingFaceCacheSnapshot(
 // MARK: - GenerationConfig (Whisper)
 
 /// Whisper-style generation parameters, read from `generation_config.json` in the bundle.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct GenerationConfig: Sendable {
     /// Tokens prepended to every decode sequence before free generation.
     public let forcedPrefix: [Int32]
@@ -294,6 +307,9 @@ public struct GenerationConfig: Sendable {
 
 /// Parakeet TDT decoder configuration, decoded from the `config` block of a
 /// `speech_recognizer` bundle whose `config.architecture` is `"parakeet_tdt"`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ParakeetTDTConfig: Sendable {
     public let vocabSize: Int
     public let blankTokenId: Int32
@@ -379,6 +395,9 @@ public struct ParakeetTDTConfig: Sendable {
 
 // MARK: - SpeechError
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum SpeechError: Error, CustomStringConvertible, LocalizedError {
     case missingModel(String)
     case missingTokenizer
@@ -401,3 +420,5 @@ public enum SpeechError: Error, CustomStringConvertible, LocalizedError {
     /// user — bridges through `NSError` and reports an opaque error number instead.
     public var errorDescription: String? { description }
 }
+
+#endif  // canImport(CoreAI)

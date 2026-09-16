@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Foundation
 
 // MARK: - Compiled Grammar
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class CompiledGrammar {
     private let handle: OpaquePointer
     public let tokenizerInfo: TokenizerInfo
@@ -32,6 +39,9 @@ public final class CompiledGrammar {
 
 // MARK: - Grammar Compiler
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class GrammarCompiler {
     private let handle: OpaquePointer
     private let tokenizerInfo: TokenizerInfo
@@ -82,6 +92,9 @@ public final class GrammarCompiler {
 
 // MARK: - Grammar Matcher
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class GrammarMatcher {
     private let handle: OpaquePointer
     private let vocabularySize: Int
@@ -163,6 +176,9 @@ public final class GrammarMatcher {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum XGrammarError: Error, LocalizedError {
     case schemaCompilationFailed(String)
 
@@ -173,3 +189,5 @@ public enum XGrammarError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

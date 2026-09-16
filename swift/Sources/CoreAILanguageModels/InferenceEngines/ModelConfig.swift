@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import Synchronization
 // MARK: - Model Source
 
 /// Model source configuration.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ModelSource: Codable, Sendable {
     public let hfModelId: String?
     public let modelDefinition: ModelDefinition?
@@ -54,6 +61,9 @@ public struct ModelSource: Codable, Sendable {
 /// | `model_definition`    | (on source)           | ``ModelSource/ModelDefinition`` | `.pyTorch` | Model origin framework |
 ///
 /// Use ``resolvedModelDefinition`` for safe access with defaults.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ModelConfig: InferenceConfiguration, Codable, Sendable {
     public let maxContextLength: Int
 
@@ -128,6 +138,9 @@ public struct ModelConfig: InferenceConfiguration, Codable, Sendable {
 
 // MARK: - Convenience accessors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ModelConfig {
     /// Resolved model definition — returns the explicit value or `.pyTorch` as default.
     public var resolvedModelDefinition: ModelSource.ModelDefinition {
@@ -137,6 +150,9 @@ extension ModelConfig {
 
 // MARK: - Chunking configuration (layered resolution)
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ModelConfig {
     /// Prefill chunk size with layered resolution:
     /// override → deprecated env var → memory-based default.
@@ -195,10 +211,16 @@ extension ModelConfig {
 }
 
 /// Accepted serialized-model file extensions.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let acceptedFileExtensions: [String] = [
     ".aimodel"
 ]
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ModelConfig {
     /// Creates a model configuration from raw data.
     public init(parsing data: Data) throws {
@@ -276,3 +298,5 @@ extension ModelConfig {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

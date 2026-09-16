@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -34,6 +38,9 @@ import Tokenizers
 ///     jsonSchema: schemaString
 /// )
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ConstrainedGenerator: DecodingStrategy {
     private let engine: any InferenceEngine
     private let tokenizer: any Tokenizer
@@ -245,6 +252,9 @@ public struct ConstrainedGenerator: DecodingStrategy {
 
 // MARK: - ConstrainedGeneratedSequence
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedGenerator {
     /// Async sequence that emits exactly one `GenerationResult` containing the complete JSON output.
     public struct ConstrainedGeneratedSequence: AsyncSequence {
@@ -275,6 +285,9 @@ extension ConstrainedGenerator {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedGenerator.ConstrainedGeneratedSequence {
     public struct Iterator: AsyncIteratorProtocol {
         public typealias Element = GenerationResult
@@ -312,3 +325,5 @@ extension ConstrainedGenerator.ConstrainedGeneratedSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

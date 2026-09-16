@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Asynchronous token input handler for the Pipelined engine (MTLBuffer-based).
 //
 // Copyright 2026 Apple Inc.
@@ -14,6 +18,9 @@ import Metal
 ///
 /// `decodeOutputBuffers` is shared with the engine (GPU sampler writes next token
 /// there; this handler reads the previous step's token during decode).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct PipelinedTokenInputHandler {
     let inputIdsName: String
     let positionIdsName: String
@@ -105,3 +112,5 @@ struct PipelinedTokenInputHandler {
         ]
     }
 }
+
+#endif  // canImport(CoreAI)

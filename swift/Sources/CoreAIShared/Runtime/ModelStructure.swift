@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -9,6 +13,9 @@ import Foundation
 // MARK: - Model Structure Detection
 
 /// Well-known graph function names used for structure detection.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum GraphNames {
     public static let main = "main"
     public static let loadEmbeddings = "load_embeddings"
@@ -26,6 +33,9 @@ public enum GraphNames {
 /// - `dynamic`: Uses `CoreAISequentialEngine` or `CoreAIPipelinedEngine`
 /// - `multiFunctionSegmenter`: Uses `CoreAISegmentationEngine` against an asset
 ///   with `image_encode` / `text_encode` / `detect` graphs (e.g. optimized SAM3).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ModelStructure: Equatable, Sendable, CustomStringConvertible {
     /// Chunked static model with fixed batch size for static-shape execution.
     /// Identified by presence of `extend_*` and `load_embeddings` functions.
@@ -97,6 +107,9 @@ public enum ModelStructure: Equatable, Sendable, CustomStringConvertible {
 /// ## Thread Safety
 /// `PreparedModelAsset` is `Sendable` and can be safely shared across actor boundaries.
 /// The underlying `AIModel` is thread-safe for read access.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct PreparedModel: Sendable {
     /// The pre-loaded and JIT-compiled model.
     public let model: AIModel
@@ -201,8 +214,45 @@ public struct PreparedModel: Sendable {
         let probedStructure = probeStructure(at: url)
         CLILogger.log("  - Probed structure: \(probedStructure.description)")
 
-        let options = probedStructure.specializationOptions
-        let model = try await AIModel(contentsOf: url, options: options)
+        // App runtime hook. Upstream always derives the compute unit from the probed structure and
+        // always loads through AIModel(contentsOf:options:), so a host app cannot honour a user's
+        // compute-unit choice, ask for a persistent specialization cache, or share that cache with
+        // an app extension. Unset variables reproduce upstream behaviour exactly.
+        // wangqi modified 2026-09-15
+        var options = probedStructure.specializationOptions
+        let env = ProcessInfo.processInfo.environment
+        if let forced = env["COREAI_FORCE_COMPUTE_UNIT"], !forced.isEmpty {
+            switch forced.lowercased() {
+            case "auto":
+                CLILogger.log("  - compute unit: structure default")
+            case "cpu":
+                options = .cpuOnly
+                CLILogger.log("  - FORCED compute unit: cpuOnly")
+            case "gpu":
+                options = SpecializationOptions(preferredComputeUnitKind: .gpu)
+                CLILogger.log("  - FORCED compute unit: gpu")
+            case "neuralengine", "ane", "neural_engine":
+                options = SpecializationOptions(preferredComputeUnitKind: .neuralEngine)
+                CLILogger.log("  - FORCED compute unit: neuralEngine")
+            default:
+                CLILogger.log("  - Unknown COREAI_FORCE_COMPUTE_UNIT '\(forced)'; using structure default")
+            }
+        }
+
+        let cache: AIModelCache
+        if let group = env["COREAI_CACHE_APP_GROUP"], !group.isEmpty,
+            let shared = AIModelCache(appGroup: group)
+        {
+            cache = shared
+            CLILogger.log("  - cache: App Group \(group)")
+        } else {
+            cache = .default
+        }
+        let policy: AIModelCache.Policy =
+            env["COREAI_CACHE_PERSISTENT"] == "1" ? .persistent : .default
+
+        let model = try await AIModel.specialize(
+            contentsOf: url, options: options, cache: cache, cachePolicy: policy)
         CLILogger.log("  - Loaded \(model.functionNames.count) graphs")
 
         // Re-detect from compiled library — source of truth, should match the probe.
@@ -277,3 +327,5 @@ public struct PreparedModel: Sendable {
         return Int(parts[2])
     }
 }
+
+#endif  // canImport(CoreAI)

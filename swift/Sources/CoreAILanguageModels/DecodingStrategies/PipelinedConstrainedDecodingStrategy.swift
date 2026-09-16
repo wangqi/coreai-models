@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,9 +12,18 @@ import Foundation
 import Synchronization
 import Tokenizers
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let defaultMaxConstrainedTokens = 512
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let maxConsecutiveDecodeFailures = 10
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private final class SingleUseFlag: Sendable {
     private let value = Atomic<Bool>(false)
     func testAndSet() -> Bool {
@@ -27,6 +40,9 @@ private final class SingleUseFlag: Sendable {
 ///
 /// Only used when the engine conforms to `ConstrainedGenerationCapable`. The routing logic in
 /// `CoreAILanguageModel` selects this strategy based on engine type.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct PipelinedConstrainedDecodingStrategy: DecodingStrategy {
     private let jsonSchema: String
     private let vocabSizeOverride: Int?
@@ -96,6 +112,9 @@ public struct PipelinedConstrainedDecodingStrategy: DecodingStrategy {
 /// The engine's background Task owns session lifetime: it returns the session to
 /// cache in its `defer` block after generation completes (normal, error, or cancel).
 /// The iterator does not manage session lifecycle.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct PipelinedConstrainedSequence: AsyncSequence {
     public typealias Element = GenerationResult
     public typealias Failure = Error
@@ -126,6 +145,9 @@ public struct PipelinedConstrainedSequence: AsyncSequence {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension PipelinedConstrainedSequence {
     public final class Iterator: AsyncIteratorProtocol {
         public typealias Element = GenerationResult
@@ -239,3 +261,5 @@ extension PipelinedConstrainedSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

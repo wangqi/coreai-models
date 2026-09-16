@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -11,13 +15,22 @@ import Synchronization
 // MARK: - Inference Output
 
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public typealias LogitsScalarType = Float16
 #else
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public typealias LogitsScalarType = Float
 #endif
 
 /// Single step output from `InferenceEngine.generate()`.
 /// Contains the sampled token and optionally raw logits.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InferenceOutput: Sendable {
     public let tokenId: Int32
 
@@ -34,6 +47,9 @@ public struct InferenceOutput: Sendable {
 
 /// Controls what the engine produces and how much.
 /// Struct-based for additive extensibility (future: embeddings, attention maps).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InferenceOptions: Sendable {
     /// Max tokens to generate. Nil = until EOS or context limit.
     public var maxTokens: Int?
@@ -57,6 +73,9 @@ public struct InferenceOptions: Sendable {
 // MARK: - Configuration Data Structures
 
 /// Configuration-specific errors with user-friendly messages
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ConfigurationError: Error, LocalizedError {
     case fileNotFound(String)
     case invalidJSON(String, String)
@@ -85,6 +104,9 @@ public enum ConfigurationError: Error, LocalizedError {
 /// Interface for inference engines.
 ///
 /// KV cache is preserved between `generate()` calls. Call `reset()` to clear.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol InferenceEngine: Sendable {
     associatedtype OutputSequence: InferenceOutputSequence
     typealias TokenId = Int32
@@ -158,6 +180,9 @@ public protocol InferenceEngine: Sendable {
     var config: ConfigType { get }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol InferenceConfiguration: Sendable {
     var maxContextLength: Int { get }
 
@@ -180,6 +205,9 @@ public protocol InferenceConfiguration: Sendable {
 /// Example with Qwen3 (vocab_size = 151,936):
 /// - 32K prompt without chunking: 1 × 32,768 × 151,936 × 2 = **9.6 GB**
 /// - 2048-token chunk:            1 × 2,048 × 151,936 × 2 = **620 MB** (94% reduction)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func defaultPrefillChunkSize() -> Int {
     let bytes = ProcessInfo.processInfo.physicalMemory
     let gb = bytes / (1024 * 1024 * 1024)
@@ -187,6 +215,9 @@ func defaultPrefillChunkSize() -> Int {
     return 4096
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceConfiguration {
     public var prefillChunkSize: Int { defaultPrefillChunkSize() }
 
@@ -196,12 +227,18 @@ extension InferenceConfiguration {
 
 // MARK: - Default Implementations
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default: supportsLogits is false. Engines that can return per-step
     /// logits (sequential, static-shape) override this to true.
     public var supportsLogits: Bool { false }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Guided/structured generation needs either per-step logits (CPU-side
     /// constrained decoding) or GPU-side constrained sampling
@@ -211,15 +248,24 @@ extension InferenceEngine {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default: no prefix hits (engine doesn't track history).
     public var lastPrefixHitCount: Int { 0 }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     public var hasRecurrentState: Bool { false }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default: engine is not busy.
     public var isBusy: Bool { false }
@@ -228,6 +274,9 @@ extension InferenceEngine {
     public func cancel() async throws {}
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default no-op implementation of warmup.
     public func warmup(queryLength: Int, sampling: SamplingConfiguration?) async throws {
@@ -235,11 +284,17 @@ extension InferenceEngine {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default: processedTokenCount is 0 (engine hasn't processed anything).
     public var processedTokenCount: Int { 0 }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default: reset() delegates to reset(to: 0) for full reset.
     public func reset() async throws {
@@ -247,6 +302,9 @@ extension InferenceEngine {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension InferenceEngine {
     /// Default implementation: accepts all sampling configurations.
     ///
@@ -261,6 +319,9 @@ extension InferenceEngine {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum InferenceRuntimeError: Error, LocalizedError {
     case functionNotFound(String)
     case modelNotFound(String)
@@ -327,6 +388,9 @@ public enum InferenceRuntimeError: Error, LocalizedError {
 ///    token sequence and run prefill + decode
 ///
 /// The caller owns the embeddings and decides caching strategy.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol MultimodalInferenceEngine: InferenceEngine {
     /// Encode an image into embeddings suitable for injection into the VLM.
     /// Returns the embedded representation — caller decides whether to cache.
@@ -362,6 +426,9 @@ public protocol MultimodalInferenceEngine: InferenceEngine {
 ///
 /// Determines how the KV cache is allocated and managed at runtime.
 /// This is engine-level configuration applicable to any engine that uses KV caching.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum KVCacheStrategy: String, Codable, Sendable, CaseIterable {
     /// Auto-select the best strategy based on model capability.
     /// - For models exported with `--dynamic-sized-kvcache-gpu`: uses `growing`
@@ -404,3 +471,5 @@ public enum KVCacheStrategy: String, Codable, Sendable, CaseIterable {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

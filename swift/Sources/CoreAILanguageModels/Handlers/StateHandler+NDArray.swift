@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -11,6 +15,9 @@ import Darwin
 
 /// Fixed-size state for non-truncatable persistent states.
 /// Allocated at full size on init, zero-initialized. No capacity management needed.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class FixedNDArrayState: SyncStateHandler {
     public let stateNames: [String]
     public let supportsTruncation: Bool = false
@@ -61,6 +68,9 @@ public final class FixedNDArrayState: SyncStateHandler {
 // MARK: - Growing NDArray State
 
 /// Dynamically-growing KV cache state. Starts small and doubles capacity.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public final class GrowingNDArrayState: SyncStateHandler {
     public let stateNames: [String]
     public let supportsTruncation: Bool = true
@@ -187,6 +197,9 @@ public final class GrowingNDArrayState: SyncStateHandler {
 
 // MARK: - Shared Utilities
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func zeroFillNDArray(_ array: inout NDArray) {
     let count = array.shape.reduce(1, *)
     switch array.scalarType {
@@ -204,3 +217,5 @@ func zeroFillNDArray(_ array: inout NDArray) {
         preconditionFailure("Unsupported scalar type for state: \(array.scalarType)")
     }
 }
+
+#endif  // canImport(CoreAI)

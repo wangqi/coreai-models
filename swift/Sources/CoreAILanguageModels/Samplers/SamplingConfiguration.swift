@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -42,6 +46,9 @@ import CoreAIShared
 /// // Combined TopK + TopP (recommended for best quality)
 /// let combined = SamplingConfiguration(temperature: 0.8, topK: 50, topP: 0.9)
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct SamplingConfiguration: Sendable, Equatable, Hashable {
     /// Controls the randomness of token generation.
     ///
@@ -304,6 +311,9 @@ public struct SamplingConfiguration: Sendable, Equatable, Hashable {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension SamplingConfiguration {
     /// Samples the next token using CPU fallback samplers.
     ///
@@ -343,3 +353,5 @@ extension SamplingConfiguration {
         return CompositeSampler.sample(from: &logits, config: self)
     }
 }
+
+#endif  // canImport(CoreAI)

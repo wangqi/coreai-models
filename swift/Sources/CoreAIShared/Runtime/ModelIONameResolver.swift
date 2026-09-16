@@ -1,4 +1,11 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 /// Shared helpers for discovering model input/output names by substring matching.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum ModelIONameResolver {
     /// Finds the first name containing "pixel" or "image" (case-insensitive).
     public static func findImageInputName(in names: [String]) -> String? {
@@ -21,3 +28,5 @@ public enum ModelIONameResolver {
         names.first { $0.lowercased().contains("box") }
     }
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import CoreAI
 import CoreAIShared
 
 /// Context for each inference step, used by both dynamic (GPU) and static (ANE) engines.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InputContext: Sendable {
     /// Tokens to process in this step.
     public let tokens: ArraySlice<Int32>
@@ -60,6 +67,9 @@ public struct InputContext: Sendable {
 /// The engine calls `prepare(...)` each step and passes the result to `function.run()`.
 /// Standard models use `TokenInputHandler`; models with extra inputs (RoPE,
 /// sliding step, PLE) wrap it with `CompositeInputHandler`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol SyncInputHandler {
     /// Input names this handler produces.
     var inputNames: [String] { get }
@@ -70,6 +80,9 @@ public protocol SyncInputHandler {
 
 // MARK: - Load-time Coverage Check
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum InputCoverage {
     /// Verify that a set of handlers covers all required inputs declared by the model descriptor.
     /// Call at engine init to fail fast on missing handlers rather than producing NaN at runtime.
@@ -99,10 +112,16 @@ public enum InputCoverage {
 
 /// Sentinel value for masked (non-attending) positions in the causal attention mask.
 /// Large negative that becomes ~0 after softmax.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public let causalMaskSentinel = Float16(-40000)
 
 /// Pre-allocated input buffer set. Owns NDArrays, reused across steps.
 /// The engine creates this once at init and passes it to `StaticInputHandler.fill()` each step.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InputBuffers {
     private var buffers: [String: NDArray] = [:]
     private var pool: [String: [[Int]: NDArray]] = [:]
@@ -203,6 +222,9 @@ public struct InputBuffers {
 ///
 /// Handlers are stateless — all per-step state lives in `InputContext` or `InputBuffers`.
 /// This allows handlers to be stored as `let` and shared across engines.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol StaticInputHandler: Sendable {
     /// Input names this filler produces.
     var inputNames: [String] { get }
@@ -214,3 +236,5 @@ public protocol StaticInputHandler: Sendable {
     /// Non-mutating: handler holds no per-step state. All mutation goes into `buffers`.
     func fill(_ context: InputContext, into buffers: inout InputBuffers) throws
 }
+
+#endif  // canImport(CoreAI)

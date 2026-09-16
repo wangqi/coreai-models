@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -13,6 +17,9 @@ import os.signpost
 /// Category groups for organizing signpost metrics in output tables
 ///
 /// Groups are sorted in this order: main → decoder → engine
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum CategoryGroup: String, Comparable {
     case main = "main"  // Top-level lifecycle: model load, tokenizer load, warmup
     case decoder = "decoder"  // Decoding strategy layer: prompt, extend, decode, tokenization
@@ -33,6 +40,9 @@ public enum CategoryGroup: String, Comparable {
 }
 
 /// Standard signpost categories for consistent Instruments visualization
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum SignpostCategory: String, Sendable {
     case prompt = "Prompt"
     case extend = "Extend"  // Strategy layer: inter-token timing (N-1 spans)
@@ -89,6 +99,9 @@ public enum SignpostCategory: String, Sendable {
 /// // ... do work ...
 /// span.end()  // Consuming - cannot use span after this
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ProfileSpan: ~Copyable {
     private let category: SignpostCategory
     private let signpostID: OSSignpostID
@@ -199,6 +212,9 @@ public struct ProfileSpan: ~Copyable {
 }
 
 /// Thread-safe storage for profiling statistics
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @MainActor
 public final class StatsStorage {
     public static let shared = StatsStorage()
@@ -267,6 +283,9 @@ public final class StatsStorage {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension StatsStorage {
     private struct CategoryStats {
         var count: Int = 0
@@ -296,6 +315,9 @@ extension StatsStorage {
 ///
 /// NOTE: Summary printing is handled by `PerformanceMetrics.printSummary()` which
 /// combines token counts with timing from StatsStorage. Consider consolidating in future.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @MainActor
 public struct StatsReporter {
     private let storage: StatsStorage
@@ -453,6 +475,9 @@ public struct StatsReporter {
 }
 
 /// Enhanced profiling system that integrates with Instruments
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InstrumentsProfiler {
     private static let log = OSLog(subsystem: "com.apple.coreai-models.performance", category: "performance")
 
@@ -825,6 +850,9 @@ public struct InstrumentsProfiler {
 // MARK: - Mach Task Info Structure
 
 // swiftformat:disable all
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private struct MachTaskBasicInfo {
     var virtualSize: mach_vm_size_t = 0
     var residentSize: mach_vm_size_t = 0
@@ -835,4 +863,9 @@ private struct MachTaskBasicInfo {
     var suspendCount: integer_t = 0
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let machTaskBasicInfo: Int32 = 20
+
+#endif  // canImport(CoreAI)

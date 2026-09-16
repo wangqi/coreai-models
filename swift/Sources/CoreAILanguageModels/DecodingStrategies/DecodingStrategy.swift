@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -9,6 +13,9 @@ import Tokenizers
 // MARK: - Generation Result
 
 /// Decoded text with optional token ID and logits.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct GenerationResult: Sendable {
     public let text: String
     public let tokenId: Int32
@@ -59,6 +66,9 @@ public struct GenerationResult: Sendable {
 ///     }
 /// }
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct StopSequences: Sendable {
     /// All stop sequences (each is an array of token IDs)
     public let sequences: [[Int32]]
@@ -155,6 +165,9 @@ public struct StopSequences: Sendable {
 
 /// Decoding strategies produce text + optional enrichments (logits, token IDs)
 /// from an inference engine.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol DecodingStrategy: Sendable {
     associatedtype ResultSequence: AsyncSequence<GenerationResult, Error>
 
@@ -184,6 +197,9 @@ public protocol DecodingStrategy: Sendable {
 // MARK: - Decoding Strategy Factory
 
 /// Factory for creating decoding strategies
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct DecodingStrategyFactory {
     /// Creates a decoding strategy of the specified type
     /// - Parameters:
@@ -201,15 +217,23 @@ public struct DecodingStrategyFactory {
 }
 
 /// Enumeration of available decoding strategy types
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum DecodingType {
     /// Standard vanilla decoding strategy (text-only)
     case vanilla
 }
 
 /// Parameters for configuring decoding strategies
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct DecodingParameters: Sendable {
     /// Initializes decoding parameters with default values
     public init() {
         // No parameters needed for vanilla decoding
     }
 }
+
+#endif  // canImport(CoreAI)

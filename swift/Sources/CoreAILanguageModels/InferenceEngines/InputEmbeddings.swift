@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -11,6 +15,9 @@ import Foundation
 /// Used by multimodal engines to pass vision/audio embeddings into the
 /// language model. The engine performs scatter-merge: replacing placeholder
 /// token positions with these embeddings before the first forward pass.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct InputEmbeddings: Sendable {
     /// The embedding tensor, shape [batch, seq_len, hidden_dim].
     /// Scalar type matches the LLM's expected input (float16, bFloat16, etc.).
@@ -35,3 +42,5 @@ public struct InputEmbeddings: Sendable {
     // TODO: Multi-turn support — allow multiple image regions per input,
     // persistent across generate() calls (keep in KV cache on reset).
 }
+
+#endif  // canImport(CoreAI)

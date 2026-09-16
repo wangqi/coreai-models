@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -9,11 +13,17 @@ import Foundation
 /// A protocol abstracting time measurement for testability.
 ///
 /// In production, use the default `ContinuousClock`. In tests, inject a `MockClock`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol TimingClock: Sendable {
     /// Returns the current instant.
     var now: ContinuousClock.Instant { get }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ContinuousClock: TimingClock {}
 
 /// Performance metrics tracking for LLM inference
@@ -23,6 +33,9 @@ extension ContinuousClock: TimingClock {}
 /// 2. Keeps token count tracking (not duplicated in StatsStorage)
 /// 3. Provides formatted output reports
 /// 4. Tracks overall timing for total duration calculation
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 @MainActor
 public final class PerformanceMetrics {
     private let clock: any TimingClock
@@ -265,8 +278,13 @@ public final class PerformanceMetrics {
 
 // MARK: - String Extension for Repeat
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension String {
     static func * (left: String, right: Int) -> String {
         return String(repeating: left, count: right)
     }
 }
+
+#endif  // canImport(CoreAI)

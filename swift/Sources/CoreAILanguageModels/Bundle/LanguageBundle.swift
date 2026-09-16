@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,6 +21,9 @@ import Tokenizers
 /// - `LanguageBundle(bundle: existing)` — upgrade an inspected `ModelBundle`
 ///
 /// For lossy peeks see `extension ModelBundle { var language: LanguageBundle? }`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct LanguageBundle: Sendable {
     public let bundle: ModelBundle
     public let modelAssetPath: String
@@ -100,6 +107,9 @@ public struct LanguageBundle: Sendable {
 
 // MARK: - 0.2 payload shape
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension LanguageBundle {
     fileprivate struct LanguagePayload: Decodable {
         let assets: Assets
@@ -111,3 +121,5 @@ extension LanguageBundle {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

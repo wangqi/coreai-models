@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -45,6 +49,9 @@ import MetalPerformanceShadersGraph
 ///
 /// Both argmax (greedy) and TopK (probabilistic) samplers conform to this protocol,
 /// enabling a single sampler to be selected at engine init time based on configuration.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 protocol MPSGraphSampler: AnyObject, Sendable {
     /// The vocabulary size this sampler was compiled for
     var vocabSize: Int { get }
@@ -75,6 +82,9 @@ protocol MPSGraphSampler: AnyObject, Sendable {
     )
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension MPSGraphSampler {
     var bitmaskBuffer: MTLBuffer? { get throws { nil } }
 
@@ -96,6 +106,9 @@ extension MPSGraphSampler {
 // MARK: - Sampler Factory
 
 /// Factory for creating the appropriate MPSGraph sampler based on configuration.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 enum MPSGraphSamplerFactory {
     /// Create a sampler appropriate for the given sampling configuration.
     ///
@@ -160,6 +173,9 @@ enum MPSGraphSamplerFactory {
 /// bit `i%32` in word `i/32` = 1 means token `i` is allowed.
 ///
 /// Returns the masked logits tensor `[1, vocabSize]` ready for topK or argmax.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private func buildBitmaskExpansionGraph(
     graph: MPSGraph,
     logits: MPSGraphTensor,
@@ -225,6 +241,9 @@ private func buildBitmaskExpansionGraph(
 ///     )
 /// }
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class MPSGraphArgmaxSampler: @unchecked Sendable {
     private let device: MTLDevice
     private let mpsDevice: MPSGraphDevice
@@ -643,6 +662,9 @@ final class MPSGraphArgmaxSampler: @unchecked Sendable {
 }
 
 // Conformance to MPSGraphSampler protocol
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension MPSGraphArgmaxSampler: MPSGraphSampler {}
 
 // MARK: - MPSGraph Top-K Sampler
@@ -664,6 +686,9 @@ extension MPSGraphArgmaxSampler: MPSGraphSampler {}
 /// 5. Apply TopP filter: keep probs where exclusive cumsum < topP
 /// 6. Re-normalize masked probabilities
 /// 7. Sample using multinomial (cumsum + random comparison)
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class MPSGraphCompositeSampler: @unchecked Sendable {
     private let device: MTLDevice
     private let mpsDevice: MPSGraphDevice
@@ -1427,12 +1452,20 @@ final class MPSGraphCompositeSampler: @unchecked Sendable {
 }
 
 // Conformance to MPSGraphSampler protocol
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension MPSGraphCompositeSampler: MPSGraphSampler {}
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 enum MPSGraphSamplerError: Error {
     case bufferAllocationFailed
     case graphCompilationFailed
     case unsupportedDevice
 }
+
+#endif  // canImport(CoreAI)

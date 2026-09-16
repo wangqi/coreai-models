@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -16,6 +20,9 @@ import Tokenizers
 /// encoder-decoder bundles and Parakeet TDT bundles; the architecture is
 /// auto-detected from the bundle's metadata.json (or the legacy
 /// encoder/decoder filename convention for Whisper).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public actor SpeechRecognitionModel {
     package let bundle: SpeechRecognitionBundle
     package let decoder: any SpeechDecoder
@@ -343,3 +350,5 @@ public actor SpeechRecognitionModel {
         return tokenizer.decode(tokens: ids).trimmingCharacters(in: .whitespaces)
     }
 }
+
+#endif  // canImport(CoreAI)

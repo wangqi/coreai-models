@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Foundation
 // MARK: - Errors
 
 /// Errors specific to KV cache operations.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 enum KVCacheError: Error, LocalizedError {
     case allocationFailed(Int)
     case unsupportedStrategy(String)
@@ -44,9 +51,14 @@ enum KVCacheError: Error, LocalizedError {
 /// - Returns: A slice (as a new `Array`) of length `vocabSize` for the last token.
 ///   Returns the full buffer unchanged when it already has exactly `vocabSize` elements
 ///   (i.e. a single-token batch – avoids a redundant copy).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 func lastTokenLogits(from logitBuffer: [LogitsScalarType], vocabSize: Int) -> [LogitsScalarType] {
     guard logitBuffer.count > vocabSize else { return logitBuffer }
     let tokensInBuffer = logitBuffer.count / vocabSize
     let lastTokenOffset = (tokensInBuffer - 1) * vocabSize
     return Array(logitBuffer[lastTokenOffset..<(lastTokenOffset + vocabSize)])
 }
+
+#endif  // canImport(CoreAI)

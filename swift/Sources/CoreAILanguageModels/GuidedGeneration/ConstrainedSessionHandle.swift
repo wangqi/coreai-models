@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import Tokenizers
 /// Not thread-safe — ownership transfers between the engine cache and the
 /// active generation task via the checkout/checkin pattern. Only one task
 /// holds the handle at a time; concurrent access is a programming error.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 package final class ConstrainedSessionHandle: @unchecked Sendable {
     /// Schema string is immutable after init — cached to avoid repeated access.
     let schema: String
@@ -55,3 +62,5 @@ package final class ConstrainedSessionHandle: @unchecked Sendable {
         tokenizer.encode(text: string).map(Int32.init)
     }
 }
+
+#endif  // canImport(CoreAI)

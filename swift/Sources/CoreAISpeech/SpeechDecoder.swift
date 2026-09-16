@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import Foundation
 // MARK: - DecoderResources
 
 /// Architecture-specific assets handed to a `SpeechDecoder` per call.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum DecoderResources: Sendable {
     case whisper(decoder: AIModel, generationConfig: GenerationConfig)
     case parakeetTDT(decoderStep: AIModel, joint: AIModel, config: ParakeetTDTConfig)
@@ -19,6 +26,9 @@ public enum DecoderResources: Sendable {
 
 /// Per-step timing collected during the autoregressive decode loop, plus enough
 /// diagnostics to tell which branches of that loop an input actually reached.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct DecodeStats: Sendable {
     public let stepTimesMs: [Double]
 
@@ -89,6 +99,9 @@ public struct DecodeStats: Sendable {
 // MARK: - SpeechDecoder protocol
 
 /// Model-specific decode logic.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public protocol SpeechDecoder: Sendable {
     func decode(
         encoderOutput: NDArray,
@@ -101,6 +114,9 @@ public protocol SpeechDecoder: Sendable {
 // MARK: - Helpers
 
 /// Greedy decoder for Whisper (encoder-decoder, cross-attention, KV cache).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct WhisperDecoder: SpeechDecoder {
     public init() {}
 
@@ -178,3 +194,5 @@ public struct WhisperDecoder: SpeechDecoder {
         return (tokens: tokens, stats: DecodeStats(stepTimesMs: stepTimesMs))
     }
 }
+
+#endif  // canImport(CoreAI)

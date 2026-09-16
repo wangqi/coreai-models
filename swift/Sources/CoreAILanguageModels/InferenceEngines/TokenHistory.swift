@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -20,6 +24,9 @@ import Foundation
 ///
 /// If the input diverges from history (e.g., "Alpha beta" -> "Alpha romeo"), the engine
 /// rewinds its KV cache to the divergence point and reprocesses from there.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 struct TokenHistory: Sendable {
     private(set) var tokens: [Int32] = []
 
@@ -81,3 +88,5 @@ struct TokenHistory: Sendable {
         tokens.removeAll(keepingCapacity: true)
     }
 }
+
+#endif  // canImport(CoreAI)

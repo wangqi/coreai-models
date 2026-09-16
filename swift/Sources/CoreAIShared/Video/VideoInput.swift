@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import CoreGraphics
 import Foundation
 
 /// A frame produced by video extraction: the decoded image and its position.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VideoFrame: Sendable {
     public let image: CGImage
     /// Frame index (0-based ordinal within the extraction sequence).
@@ -17,6 +24,9 @@ public struct VideoFrame: Sendable {
 ///
 /// Wraps an `AsyncThrowingStream` so that `VideoInput` can conform to `Sendable`
 /// in Swift 6 strict concurrency (existential `any AsyncSequence` cannot).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VideoFrameSequence: AsyncSequence, Sendable {
     public typealias Element = VideoFrame
 
@@ -40,6 +50,9 @@ public struct VideoFrameSequence: AsyncSequence, Sendable {
 }
 
 /// Default number of frames sampled from a video when no explicit count is provided.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public let defaultVideoFrameCount = 8
 
 /// Extracted video frames ready for vision encoding.
@@ -47,6 +60,9 @@ public let defaultVideoFrameCount = 8
 /// Frames are delivered lazily via `VideoFrameSequence`. The engine processes
 /// and releases each frame incrementally, keeping peak memory at 1-2
 /// decoded frames plus accumulated embeddings.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VideoInput: Sendable {
     /// Number of frames, if known ahead of time (nil for live streams).
     public let frameCount: Int?
@@ -100,6 +116,9 @@ public struct VideoInput: Sendable {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum VideoInputError: Error, LocalizedError {
     case invalidVideo(String)
     case noVideoTrack
@@ -119,3 +138,5 @@ public enum VideoInputError: Error, LocalizedError {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

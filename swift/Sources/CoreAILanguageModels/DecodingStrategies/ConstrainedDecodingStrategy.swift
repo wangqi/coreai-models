@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -16,6 +20,9 @@ import Tokenizers
 /// Each step: (1) run one inference step to get logits, (2) apply the grammar bitmask
 /// to zero out tokens that would violate the JSON schema, (3) sample from the masked
 /// logits, (4) accept the token in the grammar matcher to advance the grammar state.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct ConstrainedDecodingStrategy: DecodingStrategy {
     /// The JSON schema that constrains generation output.
     private let jsonSchema: String
@@ -208,6 +215,9 @@ public struct ConstrainedDecodingStrategy: DecodingStrategy {
 
 // MARK: - ConstrainedDecodedSequence
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedDecodingStrategy {
     /// Async sequence of `GenerationResult` produced by `decode()`.
     public struct ConstrainedDecodedSequence: AsyncSequence {
@@ -232,6 +242,9 @@ extension ConstrainedDecodingStrategy {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedDecodingStrategy.ConstrainedDecodedSequence {
     /// Holds the eagerly-created, move-only generation session together with the tokenized prompt and token budget.
     fileprivate final class Prepared {
@@ -251,6 +264,9 @@ extension ConstrainedDecodingStrategy.ConstrainedDecodedSequence {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension ConstrainedDecodingStrategy.ConstrainedDecodedSequence {
     public final class Iterator: AsyncIteratorProtocol {
         public typealias Element = GenerationResult
@@ -358,3 +374,5 @@ extension ConstrainedDecodingStrategy.ConstrainedDecodedSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

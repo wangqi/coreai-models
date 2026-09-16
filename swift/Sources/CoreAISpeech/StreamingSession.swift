@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import Foundation
 // MARK: - Updates
 
 /// One transcription update from a streaming session.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public enum TranscriptionUpdate: Sendable {
     /// Cumulative text for the in-progress segment.
     ///
@@ -20,6 +27,9 @@ public enum TranscriptionUpdate: Sendable {
     case finalized(TranscriptSegment)
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TranscriptSegment: Sendable {
     public let text: String
     public let tokens: [Int32]
@@ -36,6 +46,9 @@ public struct TranscriptSegment: Sendable {
 ///
 /// A plain value type so every branch is testable: the streaming path otherwise needs three
 /// loaded `AIModel`s.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 package struct EndpointDetector {
     package let silenceFrames: Int
     package let maxSegmentFrames: Int
@@ -78,6 +91,9 @@ package struct EndpointDetector {
 /// Lives inside the `SpeechRecognitionModel` actor so that `ParakeetTDTDecoder.Stream` and the
 /// encoder's `NDArray` outputs never cross an isolation boundary; `@unchecked Sendable` for the
 /// same reason as `Stream`.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 package final class StreamingSessionState: @unchecked Sendable {
     package let config: StreamingConfig
     let endpointing: EndpointingConfig
@@ -138,6 +154,9 @@ package final class StreamingSessionState: @unchecked Sendable {
 
 // MARK: - Streaming API
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension SpeechRecognitionModel {
     /// Begin a live transcription session and return its update stream.
     ///
@@ -420,3 +439,5 @@ extension SpeechRecognitionModel {
         return text
     }
 }
+
+#endif  // canImport(CoreAI)

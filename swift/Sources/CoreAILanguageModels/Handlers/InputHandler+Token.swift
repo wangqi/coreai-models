@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Synchronous token input handler for Sequential and StaticShape engines.
 //
 // Copyright 2026 Apple Inc.
@@ -11,6 +15,9 @@ import CoreAIShared
 /// Standard input handler for text LLMs: `input_ids` (Int32) + `position_ids` (Int32).
 ///
 /// Pre-allocates the `input_ids` NDArray and reuses it when batch size is unchanged.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct TokenInputHandler: SyncInputHandler {
     public let inputNames: [String]
 
@@ -78,6 +85,9 @@ public struct TokenInputHandler: SyncInputHandler {
 /// Wraps a base input handler and appends model-specific extra inputs.
 ///
 /// Use for any input that needs per-step computation beyond standard token/position IDs.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct CompositeInputHandler<Base: SyncInputHandler>: SyncInputHandler {
     public var inputNames: [String] {
         base.inputNames + extras.map(\.name)
@@ -109,3 +119,5 @@ public struct CompositeInputHandler<Base: SyncInputHandler>: SyncInputHandler {
         return inputs
     }
 }
+
+#endif  // canImport(CoreAI)

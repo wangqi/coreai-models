@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -15,6 +19,9 @@ import Foundation
 ///
 /// Call ``createEngine(config:modelURL:options:)`` to create the engine, and pass an
 /// ``EngineOptions`` value to override the variant or customize the KV cache.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct EngineFactory: Sendable {
     /// Creates an inference engine for a model, selecting the variant from the model's structure.
     ///
@@ -232,6 +239,9 @@ public struct EngineFactory: Sendable {
 
 /// Options that customize how the factory creates an inference engine and how
 /// the engine manages its KV cache.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct EngineOptions: Sendable {
     /// A specific engine variant name that overrides auto-detection.
     ///
@@ -308,6 +318,9 @@ public struct EngineOptions: Sendable {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension EngineFactory {
     /// Determines the appropriate engine variant based on model structure.
     private enum Variant: String, Sendable, CaseIterable {
@@ -321,3 +334,5 @@ extension EngineFactory {
         case staticShape = "static-shape"
     }
 }
+
+#endif  // canImport(CoreAI)

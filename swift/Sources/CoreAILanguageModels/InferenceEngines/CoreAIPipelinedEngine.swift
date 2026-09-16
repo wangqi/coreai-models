@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -14,6 +18,9 @@ import os
 
 // MARK: - Timing
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private func milliseconds(since start: ContinuousClock.Instant) -> Double {
     let duration = ContinuousClock.now - start
     let (secs, attoseconds) = duration.components
@@ -25,11 +32,23 @@ private func milliseconds(since start: ContinuousClock.Instant) -> Double {
 /// Maximum number of in-flight pipeline stages. Shared by the backpressure gate
 /// and all buffer rotation logic to guarantee no two concurrent stages alias
 /// the same memory.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let pipelineDepth = 3
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let averageExpectedPromptSize = 256
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let temperatureTolerance: Double = 0.001
 
 /// MPSNDArray enforces 64-byte row-stride alignment on backing buffers.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private let minimumMPSNDArrayBufferSize = 64
 
 // MARK: - Core AI Pipelined Engine (Public Wrapper)
@@ -42,6 +61,9 @@ private let minimumMPSNDArrayBufferSize = 64
 /// - Pipeline-depth-matched buffer rotation for CPU/GPU overlap
 /// - Growing KV cache with pipelined expansion
 /// - All tensors are owned MTLBuffers — Core AI never allocates/frees them
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class CoreAIPipelinedEngine: InferenceEngine, ConstrainedGenerationCapable, Sendable {
     typealias ConfigType = ModelConfig
 
@@ -410,6 +432,9 @@ final class CoreAIPipelinedEngine: InferenceEngine, ConstrainedGenerationCapable
 
 // MARK: - Constrained Session Cache
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension CoreAIPipelinedEngine {
     /// Check out a constrained session from the cache, or create a new one.
     /// The cache slot is emptied — concurrent calls get independent sessions.
@@ -460,6 +485,9 @@ extension CoreAIPipelinedEngine {
 /// Class, not actor: `release()` runs synchronously from the Metal callback —
 /// an actor would force `Task { await release() }` with ordering ambiguity.
 /// `internal` (not `private`) so `PipelineGateTests` can reach it.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 final class PipelineGate: Sendable {
     private struct State: Sendable {
         var inFlight: Int = 0
@@ -530,6 +558,9 @@ final class PipelineGate: Sendable {
 
 // MARK: - Engine Implementation
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 private struct EngineImpl: ~Copyable {
     var vocabSize: Int { config.vocabSize }
 
@@ -1892,6 +1923,9 @@ private struct EngineImpl: ~Copyable {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension CoreAIPipelinedEngine {
     /// Async sequence of `InferenceOutput` produced by `generate()`.
     ///
@@ -1917,6 +1951,9 @@ extension CoreAIPipelinedEngine {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 extension CoreAIPipelinedEngine.GenerationSequence {
     public struct Iterator: AsyncIteratorProtocol {
         public typealias Element = InferenceOutput
@@ -1940,3 +1977,5 @@ extension CoreAIPipelinedEngine.GenerationSequence {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

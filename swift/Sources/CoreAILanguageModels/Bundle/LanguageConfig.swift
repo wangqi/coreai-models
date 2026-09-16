@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-09-15
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Foundation
 import Tokenizers
 
 /// `language` block of `metadata.json` schema 0.2 — LLM-specific config.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct LanguageConfig: Codable, Sendable, Equatable {
     public let tokenizer: String
     public let vocabSize: Int
@@ -181,6 +188,9 @@ public struct LanguageConfig: Codable, Sendable, Equatable {
 
 /// Vision-specific configuration for VLM bundles.
 /// Nil for text-only language models.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-09-15
+@available(iOS 27.0, macOS 27.0, *)
 public struct VisionConfig: Codable, Sendable, Equatable {
     /// Input image size (square). Vision encoder expects this resolution.
     public let imageSize: Int
@@ -277,3 +287,5 @@ public struct VisionConfig: Codable, Sendable, Equatable {
         self.tokensPerFrame = try c.decodeIfPresent(Int.self, forKey: .tokensPerFrame)
     }
 }
+
+#endif  // canImport(CoreAI)
