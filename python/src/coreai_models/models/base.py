@@ -900,15 +900,23 @@ class BaseForCausalLMForiOS(BaseForCausalLM):
     #: Query lengths the graphs are specialized for.
     IOS_STATIC_QUERY_LENS = (8, 16, 64)
 
-    # This floor sets the length of the static ladder, and the ladder is what the ANE compiler
-    # caps: regions = tiers x 3 query lengths x 2 families, so ctx 4096 from 256 is 5 tiers /
+    # This floor sets the LENGTH of the static ladder, and length is what the ANE compiler caps:
+    # regions = tiers x 3 query lengths x 2 families, so ctx 4096 from floor 256 is 5 tiers /
     # 30 regions. Measured 2026-09-15, the compiler emits a model-specific maximum number of
     # regions and silently drops the rest as a clean prefix, exit 0 and no error in the log:
     # MiniCPM5-1B stopped at 31 regions at ctx 8192, 16384 and 32768 alike (of 36 / 42 / 48
     # requested), Nemotron-1.5B at 29. A truncated bundle still loads and runs -- short tiers
     # on the ANE, long ones silently on the GPU, which is the one thing an ANE build exists to
-    # avoid. Keep iOS exports at ctx 4096 (helper/scripts/coreai/README.md Rules 1b and 2a).
-    # wangqi modified 2026-09-15
+    # avoid.
+    #
+    # The cap is NOT a limit on context. Raising this floor keeps the ladder at 30 regions while
+    # moving the top tier up: measured 2026-09-16, MiniCPM5-1B at floor 1024 / ctx 16384 compiled
+    # 30/30 ANE bitcodes on h16s and h17p and answered a 7,033-token prompt on device. The real
+    # ceiling is the KV budget (README Rule 2b). Do not raise --max-context-length without raising
+    # this floor to match, and restore it to 256 afterwards -- this file is gitignored, so a stray
+    # floor silently changes the next unrelated export.
+    # See helper/docs/coreai.md "The export decision procedure".
+    # wangqi modified 2026-09-16
     #: Smallest cache length in the static ladder; it doubles up to the context.
     IOS_STATIC_MIN_CACHE_LEN = 256
 

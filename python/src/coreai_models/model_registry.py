@@ -400,10 +400,13 @@ LLM_PRESETS: list[ModelPreset] = [
     ),
     # MiniCPM5-1B reports model_type "llama", which has no iOS (chunked-static / ANE) class.
     # It is a plain LlamaForCausalLM of the same shape as SmolLM2, which already reaches the
-    # ANE through the qwen2 export path, so reuse that path here. ctx 4096 because the
-    # chunked-static ladder is capped at ~30 regions per model and 4096 is the only context
-    # that fits under it -- this model truncated to 31 regions at 8192, 16384 and 32768 alike
-    # (helper/scripts/coreai/README.md Rule 2a). Note the bundle the app ships was adopted
+    # ANE through the qwen2 export path, so reuse that path here. ctx 4096 is what the STOCK
+    # ladder floor (256) reaches in 30 regions -- it is not this model's ceiling. Its KV budget
+    # allows 32768, and at floor 1024 / ctx 16384 it compiled 30/30 ANE bitcodes and passed on
+    # device (2026-09-16). Raising the context here requires raising IOS_STATIC_MIN_CACHE_LEN in
+    # models/base.py to match, or the ladder truncates to 31 regions as it did at 8192/16384/32768
+    # with the stock floor. See helper/docs/coreai.md "The export decision procedure".
+    # wangqi modified 2026-09-16 Note the bundle the app ships was adopted
     # from mlboydaisuke/MiniCPM5-1B-CoreAI at 8-bit (pal8_g32) via import_coreai_model.sh, not
     # exported from this preset, which takes the iOS default 4-bit palettization.
     # wangqi modified 2026-09-15
