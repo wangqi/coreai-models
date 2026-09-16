@@ -53,6 +53,37 @@ _METADATA: dict[str, AIModelMetadataFields] = {
             "Source: https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
         ),
     ),
+    # Added 2026-09-16 with the candidate-shelf work (helper/docs/coreai.md 20.5-20.6).
+    # Without an entry here the exporter warns and ships the asset with no author/license,
+    # which matters most for granite: Apache-2.0 requires attribution to travel with it.
+    # wangqi modified 2026-09-16
+    "Qwen/Qwen2.5-3B-Instruct": AIModelMetadataFields(
+        author="Qwen Team",
+        license="Qwen Research License",
+        model_description=(
+            "Qwen2.5-3B-Instruct is a 3B-parameter instruction-tuned causal language "
+            "model from the Qwen2.5 family. "
+            "Source: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct"
+        ),
+    ),
+    "HuggingFaceTB/SmolLM3-3B": AIModelMetadataFields(
+        author="Hugging Face",
+        license="Apache-2.0",
+        model_description=(
+            "SmolLM3-3B is a 3B-parameter multilingual causal language model from "
+            "Hugging Face's SmolLM3 family, with NoPE applied on every fourth layer. "
+            "Source: https://huggingface.co/HuggingFaceTB/SmolLM3-3B"
+        ),
+    ),
+    "ibm-granite/granite-4.2-3b": AIModelMetadataFields(
+        author="IBM Granite Team",
+        license="Apache-2.0",
+        model_description=(
+            "Granite-4.2-3b is a 3B-parameter instruction-tuned causal language model "
+            "from IBM's Granite 4.2 family (the dense GraniteForCausalLM variant). "
+            "Source: https://huggingface.co/ibm-granite/granite-4.2-3b"
+        ),
+    ),
     "Qwen/Qwen3-0.6B": AIModelMetadataFields(
         author="Qwen Team",
         license="Apache-2.0",

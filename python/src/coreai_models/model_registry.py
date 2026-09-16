@@ -421,6 +421,26 @@ LLM_PRESETS: list[ModelPreset] = [
         4096,
         _model_type_override="qwen2",
     ),
+    # MiniCPM5-2B is the 1B's architecture scaled up: the same LlamaForCausalLM, the same
+    # head_dim 128 and num_key_value_heads 2, 42 layers instead of 24. So it reaches the ANE
+    # through the same qwen2 iOS class, and its 2 KV heads buy it a large context -- the KV
+    # budget (README Rule 2b) allows 19114, and 16384 is the largest round ladder inside it
+    # (floor 1152 would reach 18432, at 96% of budget for 12% more context).
+    # Until now this model was adopted from mlboydaisuke/MiniCPM5-2B-CoreAI via
+    # import_coreai_model.sh, which fixed it at the publisher's ctx 4096; exporting it here is
+    # what makes the context ours to choose.
+    # wangqi modified 2026-09-16
+    ModelPreset(
+        "minicpm5-2b",
+        "openbmb/MiniCPM5-2B",
+        "minicpm5",
+        "llm",
+        "iOS",
+        "4bit_weight_palettized_group32",
+        "float16",
+        16384,
+        _model_type_override="qwen2",
+    ),
     ModelPreset(
         "olmo2-1b-instruct",
         "allenai/OLMo-2-0425-1B-Instruct",

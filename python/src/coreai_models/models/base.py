@@ -913,12 +913,17 @@ class BaseForCausalLMForiOS(BaseForCausalLM):
     # moving the top tier up: measured 2026-09-16, MiniCPM5-1B at floor 1024 / ctx 16384 compiled
     # 30/30 ANE bitcodes on h16s and h17p and answered a 7,033-token prompt on device. The real
     # ceiling is the KV budget (README Rule 2b). Do not raise --max-context-length without raising
-    # this floor to match, and restore it to 256 afterwards -- this file is gitignored, so a stray
-    # floor silently changes the next unrelated export.
+    # this floor to match, or the ladder truncates instead of reaching further.
     # See helper/docs/coreai.md "The export decision procedure".
+    #
+    # Read from COREAI_IOS_STATIC_MIN_CACHE_LEN so an export can set it per run instead of
+    # hand-editing this line. A hand-edit has to be undone by hand, and a floor left behind
+    # silently reshapes the next, unrelated export -- the failure Rule 8 of the export
+    # checklist exists to catch. The env var is scoped to one process, so there is nothing
+    # to restore. Unset means 256, the stock ladder.
     # wangqi modified 2026-09-16
     #: Smallest cache length in the static ladder; it doubles up to the context.
-    IOS_STATIC_MIN_CACHE_LEN = 256
+    IOS_STATIC_MIN_CACHE_LEN = int(os.environ.get("COREAI_IOS_STATIC_MIN_CACHE_LEN", 256))
 
     #: Interleave factor for the KV cache's embedding dim.
     KV_CACHE_INTERLEAVE_FACTOR = 8

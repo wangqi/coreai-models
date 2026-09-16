@@ -1,0 +1,17 @@
+# 4-bit palettization, group_size 8, for Qwen2.5-3B-Instruct iOS.
+# group_size 8 rather than the 32 of DEFAULT_IOS_COMPRESSION_PRESET: Apple's own iOS preset
+# for Qwen/Qwen2.5-1.5B-Instruct is "4bit_weight_palettized_group8", and group32 is the
+# recipe that destroyed Menlo/Lucy (helper/docs/coreai.md Rule 2b). Finer groups, same bits.
+# wangqi modified 2026-09-16
+kmeans_palettization_config:
+  global_config:
+    op_state_spec:
+      weight:
+        n_bits: 4
+        granularity:
+          type: per_grouped_channel
+          axis: 0
+          group_size: 8
+  module_type_configs:
+    torch.nn.modules.sparse.Embedding: null
+    coreai_models.primitives.ios.embedding.LoadEmbeddings: null

@@ -164,6 +164,12 @@ async def _async_export_model(config: ExportConfig) -> str:
     if config.variant == "iOS" and entry.ios_class is None:
         raise ValueError(f"Model '{model_type}' does not support iOS variant")
 
+    # Symmetric guard. Without it an iOS-only entry (granite, smollm3) asked for macOS sets
+    # model_class = None and fails much later with an opaque NoneType error.
+    # wangqi modified 2026-09-16
+    if config.variant == "macOS" and entry.macos_class is None:
+        raise ValueError(f"Model '{model_type}' does not support macOS variant")
+
     if config.with_drafter:
         if config.variant != "macOS":
             raise ValueError("--with-drafter is only supported for macOS variant.")

@@ -114,10 +114,12 @@ class ModelEntry:
 @lru_cache(maxsize=1)
 def _get_registry() -> dict[str, ModelEntry]:
     """Build the model registry (cached singleton). Lazy imports to avoid circular deps."""
+    from coreai_models.models.ios.granite import GraniteForCausalLMForiOS
     from coreai_models.models.ios.mistral import MistralForCausalLMForiOS
     from coreai_models.models.ios.olmo2 import Olmo2ForCausalLMForiOS
     from coreai_models.models.ios.qwen2 import Qwen2ForCausalLMForiOS
     from coreai_models.models.ios.qwen3 import Qwen3ForCausalLMForiOS
+    from coreai_models.models.ios.smollm3 import SmolLM3ForCausalLMForiOS
     from coreai_models.models.macos.gemma3_text import Gemma3ForCausalLM
     from coreai_models.models.macos.gemma3n import Gemma3nForCausalLM
     from coreai_models.models.macos.gpt_oss import GptOssForCausalLM
@@ -148,6 +150,13 @@ def _get_registry() -> dict[str, ModelEntry]:
         "gpt_oss": ModelEntry(
             macos_class=GptOssForCausalLM,
         ),
+        # Dense granite only (GraniteForCausalLM). granitemoehybrid (4.0-h, 4.0-micro) is a
+        # Mamba hybrid with no ANE path; do not add it here. iOS-only: no macOS class was
+        # ported because the macOS/GPU path is not what this pipeline publishes.
+        # wangqi modified 2026-09-16
+        "granite": ModelEntry(
+            ios_class=GraniteForCausalLMForiOS,
+        ),
         "mistral": ModelEntry(
             macos_class=MistralForCausalLM,
             ios_class=MistralForCausalLMForiOS,
@@ -176,6 +185,12 @@ def _get_registry() -> dict[str, ModelEntry]:
         ),
         "phi3": ModelEntry(
             macos_class=Phi3ForCausalLM,
+        ),
+        # SmolLM3: llama shape plus NoPE on every 4th layer. All 36 layers are
+        # full_attention, so Rule 3 kv_layers is the full count. iOS-only, as above.
+        # wangqi modified 2026-09-16
+        "smollm3": ModelEntry(
+            ios_class=SmolLM3ForCausalLMForiOS,
         ),
         "qwen2": ModelEntry(
             macos_class=Qwen2ForCausalLM,
