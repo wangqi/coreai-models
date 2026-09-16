@@ -1,0 +1,36 @@
+# Mixed-precision palettization for Menlo/Lucy (Qwen3-1.7B) on iOS.
+#
+# Replaces the default DEFAULT_IOS_COMPRESSION_PRESET ("4bit_weight_palettized_group32"),
+# which a raw-HF-id export silently falls back to and which destroys this model: the shipped
+# lucy_4bit_weight_palettized_group32_static bundle answers "Hello" with
+# "ا....-.-.-.-.-..." while the same checkpoint at fp32 answers normally.
+#
+# Derived from qwen3_0_6b_mixed_4bit_8bit.yaml rather than the 4b/8b recipes because Lucy has
+# Qwen3-0.6B's exact geometry -- 28 layers, 8 KV heads, head_dim 128 (the 4b/8b recipes name
+# layers 33/34, which do not exist here). Two divergences from the default preset, both taken
+# from that recipe:
+#   * group_size 8 instead of 32, so each 4-bit LUT covers 4x fewer weights.
+#   * blocks 0, 2, 4, 7, 15, 16 promoted to INT8 per-tensor.
+# The layer indices are INHERITED from the 0.6B sensitivity sweep, not measured on Lucy. If
+# this export is still degraded, that sweep is the next thing to redo for this checkpoint.
+#
+# wangqi modified 2026-09-15
+kmeans_palettization_config:
+  global_config:
+    op_state_spec:
+      weight:
+        n_bits: 4
+        granularity:
+          type: per_grouped_channel
+          axis: 0
+          group_size: 8
+  module_type_configs:
+    torch.nn.modules.sparse.Embedding: null
+    coreai_models.primitives.ios.embedding.LoadEmbeddings: null
+  module_name_configs:
+    'extend\.model\.layers\.(0|2|4|7|15|16)\.(self_attn|mlp)\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)':
+      op_state_spec:
+        weight:
+          n_bits: 8
+          granularity:
+            type: per_tensor
