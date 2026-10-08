@@ -19,6 +19,10 @@
 //      libraries are removed.  llm-server pulled in hummingbird and every tool pulled in
 //      swift-argument-parser, none of which belong in an app binary.  The engine and streaming code
 //      the app ports from llm-server's ChatHandler lives in AIChatModelCoreAI.swift instead.
+//   4. The diffusion library (CoreAIDiffusion -> CoreAIDiffusionPipeline) is re-added by
+//      helper/scripts/coreai/patch_coreai_package.py for the on-device image engine; video
+//      diffusion, segmentation, detection and the CLI tools stay removed.
+//      wangqi modified 2026-10-07
 //
 // wangqi modified 2026-09-15
 
@@ -38,6 +42,9 @@ let package = Package(
             name: "CoreAISpeech",
             targets: ["CoreAISpeech"]
         ),
+        // Core AI diffusion (FLUX.2 Klein, SD 1.5/2.1/3.5) for the on-device image engine.
+        // Added by patch_coreai_package.py // wangqi modified 2026-10-07
+        .library(name: "CoreAIDiffusion", targets: ["CoreAIDiffusionPipeline"]),
     ],
     dependencies: [
         .package(path: "../swift-transformers"),
@@ -83,6 +90,14 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("MemberImportVisibility")
             ]
+        ),
+
+        // Diffusion pipeline. Added by patch_coreai_package.py // wangqi modified 2026-10-07
+        .target(
+            name: "CoreAIDiffusionPipeline",
+            dependencies: ["CoreAIShared", .product(name: "Transformers", package: "swift-transformers")],
+            path: "swift/Sources/CoreAIDiffusionPipeline",
+            swiftSettings: [.enableUpcomingFeature("MemberImportVisibility")]
         ),
 
         // CXGrammar C bridge

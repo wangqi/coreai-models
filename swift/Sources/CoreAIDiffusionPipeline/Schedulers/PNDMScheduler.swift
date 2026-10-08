@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,12 +11,18 @@ import Accelerate
 import Foundation
 
 /// How to map a beta range to a sequence of betas.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum BetaSchedule {
     case linear
     case scaledLinear
 }
 
 /// What the model predicts at each denoising step.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum PredictionType: String, Codable, Sendable {
     case epsilon
     case vPrediction = "v_prediction"
@@ -22,6 +32,9 @@ public enum PredictionType: String, Codable, Sendable {
 
 /// PNDM (Pseudo Numerical Methods for Diffusion Models) scheduler.
 /// Matches HuggingFace Diffusers PNDMScheduler (PLMS method only).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public final class PNDMScheduler {
     public let trainStepCount: Int
     public let inferenceStepCount: Int
@@ -182,3 +195,5 @@ public final class PNDMScheduler {
         return noise.map { weightedSum([sqrtAlpha, sqrtBeta], [originalSample, $0]) }
     }
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import CoreAI
 import CoreGraphics
 
 /// Controls which model components are loaded and how decoding is performed.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum DecodeResolution: String, Hashable, Sendable, CaseIterable {
     /// Auto-detect: picks the highest quality mode available in the model directory.
     case auto
@@ -18,6 +25,9 @@ public enum DecodeResolution: String, Hashable, Sendable, CaseIterable {
     case tiled
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension DecodeResolution: CustomStringConvertible {
     public var description: String { rawValue }
 }
@@ -26,6 +36,9 @@ extension DecodeResolution: CustomStringConvertible {
 /// (FLUX.2 reference-token concatenation). A larger grid gives stronger structural
 /// fidelity to the reference at the cost of more compute per step. Token counts are
 /// resolution-dependent: at 1024 the grid side is 64, at 512 it is 32.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum ReferenceGrid: String, Hashable, Sendable, CaseIterable {
     /// Full grid — matches the output grid 1:1 (64×64=4096 tokens @1024, 32×32=1024 @512). ~2× compute.
     case full
@@ -41,6 +54,9 @@ public enum ReferenceGrid: String, Hashable, Sendable, CaseIterable {
 /// `guidance_embeds: false`, so the traced graph's `guidance` input is unused. The model
 /// discards it and produces a usable image from a single unguided pass. Real CFG is
 /// therefore something the pipeline adds on top, not something the model applies.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum GuidanceMode: String, Hashable, Sendable, CaseIterable {
     /// One forward pass, no classifier-free guidance. The distillation is what makes this
     /// work without it. `guidanceScale` is unused in this mode.
@@ -51,11 +67,17 @@ public enum GuidanceMode: String, Hashable, Sendable, CaseIterable {
     case manual
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension GuidanceMode: CustomStringConvertible {
     public var description: String { rawValue }
 }
 
 /// User-facing configuration for image generation.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct PipelineConfiguration: Hashable, Sendable {
     public var prompt: String
     public var negativePrompt: String
@@ -128,6 +150,9 @@ public struct PipelineConfiguration: Hashable, Sendable {
 }
 
 /// Hashable conformance — CGImage excluded (not Hashable).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension PipelineConfiguration {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(prompt)
@@ -167,3 +192,5 @@ extension PipelineConfiguration {
             && lhs.lazyModelLoading == rhs.lazyModelLoading
     }
 }
+
+#endif  // canImport(CoreAI)

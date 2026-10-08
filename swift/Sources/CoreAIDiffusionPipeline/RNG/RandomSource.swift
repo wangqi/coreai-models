@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,7 +21,12 @@ import Foundation
 ///
 /// The implementations are direct ports of MT19937 / Philox; do not refactor the
 /// bitwise logic without verifying output against the Python reference for multiple seeds.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public protocol RandomSource {
     mutating func nextNormal(mean: Double, stdev: Double) -> Double
     mutating func normalArray(_ shape: [Int], mean: Double, stdev: Double) -> [Float]
 }
+
+#endif  // canImport(CoreAI)

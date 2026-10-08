@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import Foundation
 
 /// Discrete flow matching scheduler for SD3 and Flux models.
 /// Uses Euler method on a flow-matching ODE (sigma interpolation between noise and data).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public final class DiscreteFlowScheduler {
     public let trainStepCount: Int
     public let inferenceStepCount: Int
@@ -118,3 +125,5 @@ public final class DiscreteFlowScheduler {
         zip(sample, noise).map { (1 - strength) * $0 + strength * $1 }
     }
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -13,6 +17,9 @@ import Foundation
 ///
 /// Orchestrates: text encode → denoise loop → VAE decode.
 /// All intermediate computation in [Float]. NDArray only at model I/O boundary.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct StableDiffusionPipeline: DiffusionPipeline {
     public let descriptor: PipelineDescriptor
     private let components: CoreAIDiffusionComponents
@@ -123,7 +130,10 @@ public struct StableDiffusionPipeline: DiffusionPipeline {
                 }
                 let progress = PipelineProgress(
                     step: step, totalSteps: schedule.timeSteps.count, currentLatent: previewLatents)
-                if !progressHandler(progress) { break }
+                // A cancelled run must not decode: the decode lazily reloads the VAE, which overlaps an
+                // eviction and can leave two models resident. Throw instead of break.
+                // wangqi modified 2026-10-07
+                if !progressHandler(progress) { throw CancellationError() }
             }
 
             // CFG: batch latents [2, 4, H, W]
@@ -238,3 +248,5 @@ public struct StableDiffusionPipeline: DiffusionPipeline {
         }
     }
 }
+
+#endif  // canImport(CoreAI)

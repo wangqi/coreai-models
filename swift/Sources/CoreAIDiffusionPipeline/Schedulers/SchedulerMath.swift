@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -6,6 +10,9 @@
 import Accelerate
 
 /// Compute weighted sum of Float arrays of equal length using BLAS.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 func weightedSum(_ weights: [Float], _ values: [[Float]]) -> [Float] {
     precondition(!values.isEmpty && weights.count == values.count)
     let count = values[0].count
@@ -21,19 +28,30 @@ func weightedSum(_ weights: [Float], _ values: [[Float]]) -> [Float] {
 }
 
 /// Double-precision weights overload (DPM-Solver uses Double internally).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 func weightedSum(_ weights: [Double], _ values: [[Float]]) -> [Float] {
     weightedSum(weights.map(Float.init), values)
 }
 
 /// Evenly spaced floats between [start, end].
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 func linspace(_ start: Float, _ end: Float, _ count: Int) -> [Float] {
     guard count > 1 else { return count == 1 ? [start] : [] }
     let scale = (end - start) / Float(count - 1)
     return (0..<count).map { Float($0) * scale + start }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension Array {
     subscript(back index: Int) -> Element {
         self[count - index]
     }
 }
+
+#endif  // canImport(CoreAI)

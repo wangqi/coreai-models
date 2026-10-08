@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import CoreAIShared
 import CoreGraphics
 
 /// Result from image generation — both displayable images and raw latents.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct GenerationResult: Sendable {
     /// Decoded images ready for display.
     public let images: [CGImage]
@@ -21,6 +28,9 @@ public struct GenerationResult: Sendable {
 }
 
 /// Progress callback payload for generation UI.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct PipelineProgress: Sendable {
     public let step: Int
     public let totalSteps: Int
@@ -35,6 +45,9 @@ public struct PipelineProgress: Sendable {
 }
 
 /// Orchestrates multi-component diffusion inference (text encode → denoise → decode).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public protocol DiffusionPipeline: ResourceManaging {
     /// Native output resolution for this model.
     var defaultImageSize: (width: Int, height: Int) { get }
@@ -54,6 +67,9 @@ public protocol DiffusionPipeline: ResourceManaging {
     ) async throws -> GenerationResult
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension DiffusionPipeline {
     /// Convenience: generate without a progress handler.
     public func generateImages(
@@ -62,3 +78,5 @@ extension DiffusionPipeline {
         try await generateImages(configuration: configuration, progressHandler: nil)
     }
 }
+
+#endif  // canImport(CoreAI)

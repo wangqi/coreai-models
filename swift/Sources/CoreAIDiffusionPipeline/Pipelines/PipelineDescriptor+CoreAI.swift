@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -8,6 +12,9 @@ import CoreAIShared
 import Foundation
 
 /// Loaded diffusion pipeline components backed by Core AI model functions.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct CoreAIDiffusionComponents: Sendable {
     public let textEncoder: CoreAITextEncoder
     public let denoiser: CoreAIDenoiser
@@ -16,6 +23,9 @@ public struct CoreAIDiffusionComponents: Sendable {
 }
 
 /// Errors during pipeline loading.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum PipelineLoadError: Error, LocalizedError {
     case missingComponent(String)
     case missingConfig(String)
@@ -39,6 +49,9 @@ public enum PipelineLoadError: Error, LocalizedError {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension PipelineDescriptor {
     /// Load Core AI components from a model directory based on this descriptor.
     ///
@@ -140,3 +153,5 @@ extension PipelineDescriptor {
         )
     }
 }
+
+#endif  // canImport(CoreAI)

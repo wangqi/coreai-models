@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import Foundation
 
 /// Core AI diffusion model function — manages a single InferenceFunction
 /// for stateless model evaluation (text encoder, UNet, VAE).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public actor CoreAIDiffusionModelFunction {
     private let modelURL: URL
     private var model: AIModel?
@@ -396,6 +403,9 @@ public actor CoreAIDiffusionModelFunction {
 
 // MARK: - Errors
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum CoreAIDiffusionError: Error, LocalizedError {
     case functionNotFound(String, URL)
     case notLoaded
@@ -430,6 +440,9 @@ public enum CoreAIDiffusionError: Error, LocalizedError {
 
 // MARK: - Latent Validation
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 func checkLatentsAreFinite(_ latents: [Float], step: Int) throws {
     var sum: Float = 0
     vDSP_sve(latents, 1, &sum, vDSP_Length(latents.count))
@@ -437,3 +450,5 @@ func checkLatentsAreFinite(_ latents: [Float], step: Int) throws {
         throw CoreAIDiffusionError.latentsNotFinite(step: step)
     }
 }
+
+#endif  // canImport(CoreAI)

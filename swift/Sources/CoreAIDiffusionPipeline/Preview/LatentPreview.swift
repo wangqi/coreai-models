@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -25,6 +29,9 @@ import CoreGraphics
 /// # 2. Fit a single [C, 3] projection jointly and print copy-paste Swift:
 /// diffusion-runner --tune-fit <dir>
 /// ```
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct LatentRGBCoefficients: Sendable {
     /// Fixed RGB output channel count for the latent-to-RGB projection.
     public static let rgbChannels = 3
@@ -45,6 +52,9 @@ public struct LatentRGBCoefficients: Sendable {
 
 // MARK: - NDArray → CGImage
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension NDArray {
     /// Project a latent tensor [1, C, H, W] to an RGB preview via a cblas_sgemm
     /// (BLAS) matrix multiply (latent channels → RGB), then `DiffusionUtilities.pixelsToCGImage`
@@ -116,3 +126,5 @@ extension NDArray {
         return try? DiffusionUtilities.pixelsToCGImage(chw, height: height, width: width)
     }
 }
+
+#endif  // canImport(CoreAI)

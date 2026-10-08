@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -17,6 +21,9 @@ import Foundation
 ///
 /// T5-less path: the T5 portion of `encoder_hidden_states` is zero-padded
 /// (matches diffusers' `text_encoder_3=None` behaviour).
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct SD3Pipeline: DiffusionPipeline {
     public let descriptor: PipelineDescriptor
 
@@ -151,7 +158,10 @@ public struct SD3Pipeline: DiffusionPipeline {
                     for i in 0..<latents.count { ptr[i] = latents[i] / sf + sh }
                 }
                 let progress = PipelineProgress(step: step + 1, totalSteps: steps, currentLatent: previewLatents)
-                if !progressHandler(progress) { break }
+                // A cancelled run must not decode: the decode lazily reloads the VAE, which overlaps an
+                // eviction and can leave two models resident. Throw instead of break.
+                // wangqi modified 2026-10-07
+                if !progressHandler(progress) { throw CancellationError() }
             }
         }
 
@@ -299,3 +309,5 @@ public struct SD3Pipeline: DiffusionPipeline {
     private static let jointAttentionDim = 4096  // MMDiT channel dim
     private static let pooledProjectionDim = 2048  // 768 + 1280
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import Foundation
 
 /// Matches NVIDIA cuRAND Philox 4x32-10 RNG.
 /// Used by some ComfyUI and Automatic1111 workflows for seed-compatible generation.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct NvRandomSource: RandomSource, Sendable {
     public let seed: UInt64
     private var offset: UInt32
@@ -81,3 +88,5 @@ public struct NvRandomSource: RandomSource, Sendable {
         return normalDoubleArray(count: count, mean: mean, stdev: stdev).map { Float($0) }
     }
 }
+
+#endif  // canImport(CoreAI)

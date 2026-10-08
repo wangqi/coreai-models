@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -10,6 +14,9 @@ import CoreGraphics
 import Tokenizers
 
 /// A traced img2img graph: which asset holds it, and under which entrypoint.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct Img2ImgRoute: Sendable {
     public let function: CoreAIDiffusionModelFunction
     public let entrypoint: String
@@ -27,6 +34,9 @@ public struct Img2ImgRoute: Sendable {
 ///
 /// RoPE is computed inside the transformer graph; this pipeline only supplies
 /// position IDs, which depend on grid geometry alone.
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public struct Flux2Pipeline: DiffusionPipeline {
     public let descriptor: PipelineDescriptor
     public let mode: DecodeResolution
@@ -442,7 +452,10 @@ public struct Flux2Pipeline: DiffusionPipeline {
                     for i in 0..<unpatchified.count { ptr[i] = unpatchified[i] }
                 }
                 let progress = PipelineProgress(step: step + 1, totalSteps: steps, currentLatent: previewLatents)
-                if !progressHandler(progress) { break }
+                // A cancelled run must not decode: the decode lazily reloads the VAE, which overlaps an
+                // eviction and can leave two models resident. Throw instead of break.
+                // wangqi modified 2026-10-07
+                if !progressHandler(progress) { throw CancellationError() }
             }
         }
 
@@ -1042,3 +1055,5 @@ public struct Flux2Pipeline: DiffusionPipeline {
         return 1.0
     }
 }
+
+#endif  // canImport(CoreAI)

@@ -1,3 +1,7 @@
+// CoreAI.framework is absent from the iPhoneSimulator SDK; compile the module to empty there
+// wangqi modified 2026-10-07
+#if canImport(CoreAI)
+
 // Copyright 2026 Apple Inc.
 //
 // Use of this source code is governed by a BSD-3-clause license that can
@@ -7,6 +11,9 @@ import Accelerate
 import Foundation
 
 /// How to space timesteps for inference
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public enum TimeStepSpacing {
     case linspace
     case leading
@@ -25,6 +32,9 @@ public enum TimeStepSpacing {
 ///  - No dynamic thresholding.
 ///  - `midpoint` solver algorithm.
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 public final class DPMSolverMultistepScheduler {
     public let trainStepCount: Int
     public let inferenceStepCount: Int
@@ -261,6 +271,9 @@ public final class DPMSolverMultistepScheduler {
     }
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 func sigmaToTimestep(sigma: Float, logSigmas: [Float]) -> Int {
     let logSigma = log(sigma)
     let dists = logSigmas.map { logSigma - $0 }
@@ -283,8 +296,13 @@ func sigmaToTimestep(sigma: Float, logSigmas: [Float]) -> Int {
     return Int(round(t))
 }
 
+// Core AI is iOS 27+ but the app deploys to iOS 18; gate every declaration
+// wangqi modified 2026-10-07
+@available(iOS 27.0, macOS 27.0, *)
 extension FloatingPoint {
     func clipped(to range: ClosedRange<Self>) -> Self {
         return min(max(self, range.lowerBound), range.upperBound)
     }
 }
+
+#endif  // canImport(CoreAI)
