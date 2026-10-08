@@ -34,7 +34,58 @@ def get_pipeline_type(model_id: str) -> str:
         if model_id == known_id:
             return ptype
 
+    # Upstream accepts only the exact ids above, which rejects SD 2.1 base and every SD 1.5 / SD 3.x
+    # fine-tune although the export path handles them unchanged. Resolve an unknown id (or a local
+    # diffusers folder) by the pipeline class its model_index.json names; SDXL and anything else
+    # still raise, because the Swift pipelines do not implement them.
+    # wangqi modified 2026-10-08
+    class_name = _model_index_class_name(model_id)
+    ptype = _PIPELINE_CLASS_TYPES.get(class_name or "")
+    if ptype is None and class_name and class_name.startswith("Flux2"):
+        ptype = "flux2"
+    if ptype is not None:
+        return ptype
+
     raise ValueError(
-        f"Unknown diffusion model: '{model_id}'. "
-        f"Supported models: {[mid for _, mid, _ in SUPPORTED_MODELS]}"
+        f"Unknown diffusion model: '{model_id}'"
+        + (f" (model_index.json names {class_name})" if class_name else "")
+        + f". Supported models: {[mid for _, mid, _ in SUPPORTED_MODELS]}"
+        + " or any repo / local folder whose model_index.json names "
+        + f"{sorted(_PIPELINE_CLASS_TYPES)} or a Flux2* pipeline"
     )
+
+
+# Pipeline classes the Swift runtime implements, by diffusers model_index.json `_class_name`.
+# wangqi modified 2026-10-08
+_PIPELINE_CLASS_TYPES: dict[str, str] = {
+    "StableDiffusionPipeline": "sd",
+    "StableDiffusion3Pipeline": "sd3",
+}
+
+
+def _read_model_index(model_id: str) -> dict | None:
+    """The parsed model_index.json of a local diffusers folder or a Hub repo, or None.
+
+    Module-level so a workshop wrapper can redirect it to a local tree.
+    wangqi modified 2026-10-08
+    """
+    import json
+    from pathlib import Path
+
+    local = Path(model_id).expanduser()
+    if local.is_dir():
+        index = local / "model_index.json"
+        return json.loads(index.read_text()) if index.is_file() else None
+    try:
+        from huggingface_hub import hf_hub_download
+
+        return json.loads(Path(hf_hub_download(model_id, "model_index.json")).read_text())
+    except Exception:  # offline, gated, missing repo or file: fall through to the ValueError
+        return None
+
+
+def _model_index_class_name(model_id: str) -> str | None:
+    """`_class_name` from model_index.json, or None. wangqi modified 2026-10-08"""
+    index = _read_model_index(model_id)
+    name = index.get("_class_name") if isinstance(index, dict) else None
+    return name if isinstance(name, str) else None
